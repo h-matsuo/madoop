@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet">
+  <style>
+    :root {
+      background-color: #222;
+      color: white;
+      margin: 10px;
+    }
+    code {
+      font-family: "Inconsolata", monospace;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <code id="term"></code>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.slim.min.js"></script>
+  <script>
+    var MAX_LINES = 500;
+    var beginNumber = 1, endNumber = 1;
+    var println = function (string) {
+      // XSS 対策
+      string = $('<span/>').text(string).html();
+      // 行を追加
+      $('#term').append(`<span id="${endNumber}">${string}<br></span>`);
+      // 行数が MAX_LINE を超えたら古いものから削除
+      if (endNumber - beginNumber === MAX_LINES) {
+        $(`#${beginNumber}`).remove();
+        beginNumber++;
+      }
+      endNumber++;
+      // 最下部にスクロールしていた場合のみ自動スクロール
+      var termHeight     = $('#term').height();
+      var scrollPosition = $(window).scrollTop();
+      if (termHeight - scrollPosition <= $(window).height()) {
+        window.scroll(0, $('#term').height());
+      }
+    };
+  </script>
+</body>
+</html>
