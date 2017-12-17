@@ -1,20 +1,31 @@
 // Temporal implementation. Stub.
 
-let db = [null];
+const db = [null];
 
 const database = {
 
   addTask: (map, reduce, data) => {
-    let element = {};
-    element.map    = map;
-    element.reduce = reduce;
-    element.data   = data;
-    let taskId = db.push(element) - 1;
-    element.taskId = taskId;
+    const task = {};
+    task.status = 'uncompleted';
+    task.map    = map;
+    task.reduce = reduce;
+    task.data   = data;
+    const taskId = db.push(task) - 1;
+    task.taskId = taskId;
+  },
+
+  addResult: function (taskId, result) {
+    const task = this.getTask(taskId)
+    task.result = result;
+    task.status = 'completed';
   },
 
   getTask: (taskId) => {
     return db[taskId];
+  },
+
+  getTaskList: () => {
+    return db;
   }
 
 };

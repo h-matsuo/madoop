@@ -2,18 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>MBBVC: Matsuo BBVC Demo Page</title>
+  <title>Client Demo Page | MBBVC: Matsuo BBVC</title>
   <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" rel="stylesheet"> -->
 </head>
 <body>
 
-  <h1>MBBVC: Matsuo BBVC Demo Page</h1>
+  <h1>Client Demo Page</h1>
 
-  <p>This is a main content.</p>
+  <p>
+    This is a client side demo page for MBBVC: Matsuo BBVC.
+  </p>
 
-  <p>(Tasks will be executed during your stay.)</p>
+  <p>
+    Tasks will be executed during your stay.
+    Check your console to see debug information.
+  </p>
 
-  <script src="//localhost:3000/mbbvc/mbbvc.js"></script>
+  <main>
+    <p>Main contents here.</p>
+  </main>
+
+  <script>
+    var MBBVC_MODE_DEBUG = true;
+  </script>
+  <script src="//localhost:3000/mbbvc/mbbvc.js" async></script>
 
 </body>
 </html>

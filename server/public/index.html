@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Server Demo Page | MBBVC: Matsuo BBVC</title>
+  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" rel="stylesheet"> -->
+  <style>
+    table {
+      border-collapse: collapse;
+    }
+    th, td {
+    padding: 0 10px;
+    border: 1px solid #DDD;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Server Demo Page</h1>
+
+  <p>
+    This is a server side demo page for MBBVC: Matsuo BBVC.
+  </p>
+
+  <h2>Register Task</h2>
+
+  <p>You can try to register your own task <a href="/mbbvc/register.html">here</a>.</p>
+
+  <h2>Registered Task List</h2>
+
+  <table>
+    <tr><th>Task ID</th><th>State</th><th>Details</th></tr>
+  </table>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      var ROUTE = '/mbbvc';
+      $.ajax({
+        url: `${ROUTE}/tasks`,
+        type: 'GET'
+      }).done(function (data, textStatus, jqXHR) {
+        data.reverse().forEach(function (element, index, ar) {
+          if (element === null) { return; }
+          $('table').append(`<tr><td>${element.taskId}</td><td>${element.status}</td><td>TODO</td></tr>`);
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

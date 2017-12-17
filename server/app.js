@@ -14,12 +14,26 @@ const PORT  = process.env.MBBVC_PORT  || 3000;
 // Create router defined in 'express' module
 const router = express.Router();
 
+router.get('/tasks', (req, res) => {
+  console.log('[GET] /tasks');
+  res.json(database.getTaskList());
+});
+
 router.get('/tasks/todo', (req, res) => {
   console.log('[GET] /tasks/todo');
-  res.json({
-    task: '/tasks/1/map',
-    data: '/tasks/1/data/1'
-  });
+  const taskList = database.getTaskList();
+  const todo = {
+    task: null,
+    data: null
+  };
+  for (let index = 1; index < taskList.length; index++) {
+    const task = taskList[index];
+    if (task.status === 'completed') { continue; }
+    todo.task = `/tasks/${task.taskId}/map`;
+    todo.data = `/tasks/${task.taskId}/map/data/1`;
+    break;
+  }
+  res.json(todo);
 });
 
 router.get('/tasks/:taskId/map', (req, res) => {
@@ -28,11 +42,18 @@ router.get('/tasks/:taskId/map', (req, res) => {
   res.send(database.getTask(taskId).map);
 });
 
-router.get('/tasks/:taskId/data/:dataId', (req, res) => {
+router.get('/tasks/:taskId/map/data/:dataId', (req, res) => {
   const taskId = req.params.taskId;
   const dataId = req.params.dataId;
-  console.log(`[GET] /tasks/${taskId}/data/${dataId}`);
-    res.send(database.getTask(taskId).data);
+  console.log(`[GET] /tasks/${taskId}/map/data/${dataId}`);
+  res.send(database.getTask(taskId).data);
+});
+
+router.post('/tasks/:taskId/map/data/:dataId', (req, res) => {
+  const taskId = req.params.taskId;
+  const dataId = req.params.dataId;
+  console.log(`[POST] /tasks/${taskId}/map/data/${dataId}`);
+  res.send(database.addResult(taskId, req.body.result));
 });
 
 router.post('/tasks/register', (req, res) => {

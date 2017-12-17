@@ -6,7 +6,7 @@
     var req = new XMLHttpRequest();
     req.onreadystatechange = function () {
       if (req.readyState !== 4 || req.status !== 200) return;
-      if (callback !== undefined) { callback(req.responseText); }
+      if (typeof callback !== 'undefined') { callback(req.responseText); }
     };
     req.open('GET', url, true);
     req.send(null);
@@ -17,7 +17,7 @@
       var script = document.createElement('script');
       script.text = data;
       document.head.appendChild(script).parentNode.removeChild(script);
-      if (callback !== undefined) { callback(); }
+      if (typeof callback !== 'undefined') { callback(); }
     });
   };
 
@@ -25,7 +25,7 @@
     var req = new XMLHttpRequest();
     req.onreadystatechange = function () {
       if (req.readyState !== 4 || req.status !== 200) return;
-      if (callback !== undefined) { callback(req.responseText); }
+      if (typeof callback !== 'undefined') { callback(req.responseText); }
     };
     req.open('POST', url, true);
     req.setRequestHeader('Content-Type',
@@ -40,18 +40,27 @@
       data += `${key}=${val}&`;
     }, jsonData);
     ajaxPost(url, data, function () {
-      if (callback !== undefined) { callback(); }
+      if (typeof callback !== 'undefined') { callback(); }
     });
+  };
+
+  var printDebugInfoToConsole = function (info) {
+    if (typeof MBBVC_MODE_DEBUG !== 'undefined') {
+      console.log(info);
+    }
   };
 
 
   ajaxGet(`${ROUTE}/tasks/todo`, function (data) {
     var taskInfo = JSON.parse(data);
+    if (taskInfo.task === null) { return; }
     ajaxGetScript(`${ROUTE}${taskInfo.task}`, function () {
       ajaxGet(`${ROUTE}${taskInfo.data}`, function (data) {
         var result = map(data);
-        console.log(result);
-        // ajaxPostJson();
+        var data = { result: result };
+        ajaxPostJson(`${ROUTE}${taskInfo.data}`, data, function () {
+          printDebugInfoToConsole(result);
+        });
       });
     });
   });
