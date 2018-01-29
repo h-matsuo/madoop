@@ -23,20 +23,78 @@ if [[ -e "$SETTINGS" ]]; then
   source "$SETTINGS"
 fi
 
-# Compile C to wasm
-docker run --rm -t \
-  -v "${SCRIPT_DIR}:/src" \
-  "${EMSCRIPTEN_IMAGE_NAME}:${EMSCRIPTEN_IMAGE_TAG}" \
-  emcc sample.c \
+# Parse options
+FLAG_HELP=false
+FLAG_C=false
+FLAG_CPP_WATCH=false
+FLAG_PREVIEW=false
+if [[ -z "$1" ]]; then
+  echo "ERROR: Specify a command to be executed." >&2
+  echo "See '$0 --help'." >&2
+  exit 1
+fi
+case "$1" in
+  -h)      FLAG_HELP=true    ;;
+  --help)  FLAG_HELP=true    ;;
+  c)       FLAG_C=true       ;;
+  cpp)     FLAG_CPP=true     ;;
+  preview) FLAG_PREVIEW=true ;;
+  *)
+    echo "ERROR: "$1": Unknown option." >&2
+    echo "See '$0 --help'." >&2
+    exit 1
+    ;;
+esac
+
+# Print usage
+if $FLAG_HELP; then
+  echo "
+Usage: $0 <COMMAND>
+
+A helper tool to run docker commands
+
+Options:
+  -h, --help        Print usage
+
+Commands:
+  c                 Compile C source file (sample.c)
+  cpp               Compile C++ source file (sample.cpp)
+  preview           Serve files via localhost:${PREVIEW_PORT}
+"
+  exit
+fi
+
+function run_emscripten () {
+  docker run --rm -t \
+    -v "${SCRIPT_DIR}:/src" \
+    "${EMSCRIPTEN_IMAGE_NAME}:${EMSCRIPTEN_IMAGE_TAG}" "$@"
+}
+
+# Compile C source file
+if $FLAG_C; then
+  run_emscripten emcc sample.c \
     -s WASM=1 \
     -s MODULARIZE=1 \
     -s "EXPORTED_FUNCTIONS=['_sample']" \
     -s "EXTRA_EXPORTED_RUNTIME_METHODS=['cwrap']" \
     -o sample.js
+fi
 
-# Preview
-echo "Start web server at localhost:${PREVIEW_PORT}..."
-docker run -it --rm \
-  -p ${PREVIEW_PORT}:80 \
-  -v "${SCRIPT_DIR}:/usr/share/nginx/html:ro" \
-  "${NGINX_IMAGE_NAME}:${NGINX_IMAGE_TAG}"
+# Compile C++ source file
+if $FLAG_CPP; then
+  run_emscripten emcc sample.cpp \
+    -s WASM=1 \
+    -s MODULARIZE=1 \
+    -s "EXPORTED_FUNCTIONS=['_sample']" \
+    -s "EXTRA_EXPORTED_RUNTIME_METHODS=['cwrap']" \
+    -o sample.js
+fi
+
+# Serve files via localhost
+if $FLAG_PREVIEW; then
+  echo "Start web server at localhost:${PREVIEW_PORT}..."
+  docker run -it --rm \
+    -p ${PREVIEW_PORT}:80 \
+    -v "${SCRIPT_DIR}:/usr/share/nginx/html:ro" \
+    "${NGINX_IMAGE_NAME}:${NGINX_IMAGE_TAG}"
+fi
