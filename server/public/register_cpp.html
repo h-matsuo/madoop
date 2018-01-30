@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Task Registration Page (JavaScript)</title>
+  <title>Task Registration Page (C)</title>
   <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" rel="stylesheet"> -->
   <style>
     @font-face {
@@ -28,7 +28,7 @@
 </head>
 <body>
 
-  <h1>Task Registration Page (JavaScript)</h1>
+  <h1>Task Registration Page (C++)</h1>
 
   <p>You can register your tasks to MBBVC: Matsuo BBVC platform.</p>
 
@@ -36,19 +36,62 @@
     <fieldset>
       <legend>Map function to be executed on client browsers</legend>
       <code>
-        function map(data) { <br>
-        &nbsp;&nbsp;var result = null; <br>
 <textarea name="map">
-// SAMPLE: word count
-result = {};
-data.split(/\s/).forEach(function (element, index, ar) {
-  if (!result.hasOwnProperty(element)) {
-    result[element] = 0;
+#include <vector>
+#include <string>
+#include <sstream>
+#include <unordered_map>
+
+// Split `std::string` with `char`
+std::vector<std::string> split(const std::string &str, char sep)
+{
+  std::vector<std::string> v;
+  std::stringstream ss(str);
+  std::string buffer;
+  while( std::getline(ss, buffer, sep) ) {
+    v.push_back(buffer);
   }
-  result[element]++;
-});</textarea><br>
-      &nbsp;&nbsp;return result; <br>
-      }
+  return v;
+}
+
+// Convert `std::unordered_map<std::string, int>` to JSON string (`std::string`)
+std::string to_json_str(const std::unordered_map<std::string, int> &hashmap)
+{
+  std::string result_str = "{";
+  for (auto itr = hashmap.begin(); itr != hashmap.end(); ++itr) {
+    result_str += "\"" + itr->first + "\":" + std::to_string(itr->second) + ",";
+  }
+  result_str.pop_back(); // remove last ','
+  result_str += "}";
+  return result_str;
+}
+
+extern "C" {
+
+  char* map(const char* data)
+  {
+    char* result;
+
+    // SAMPLE: word count
+    std::string data_str = std::string(data);
+    std::unordered_map<std::string, int> hashmap;
+    auto words = split(data_str, ' ');
+    for (auto &element: words) {
+      hashmap[element]++;
+    }
+
+    // Convert hashmap to JSON string
+    std::string result_str = to_json_str(hashmap);
+
+    // Convert string to char*
+    result = new char[result_str.length() + 1];
+    std::strcpy(result, result_str.c_str());
+
+    return result;
+  }
+
+}
+</textarea>
       </code>
     </fieldset>
     <fieldset>
