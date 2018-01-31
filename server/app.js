@@ -81,31 +81,41 @@ router.post('/tasks/register', (req, res) => {
   };
   const taskId = database.reserveTaskId();
   if (task.language === 'js') {
-    task.map.js = task.map.src;
+    task.map.js = `
+    let map;
+    const fetchMap = () => {
+      return new Promise(resolve => {
+        map = ${task.map.src}
+        resolve();
+      });
+    };`;
   }
   if (task.language === 'cpp') {
-    fs.writeFileSync('./tmp/map.cpp', task.map.src);
-    execSync('./docker-run.sh c++ ./tmp/map');
-    let mapJs     = fs.readFileSync('./tmp/map.js');
+    fs.writeFileSync('./workdir/map.cpp', task.map.src);
+    execSync('./workdir/docker-run.sh c++ map');
+    let mapJs = fs.readFileSync('./workdir/map.js');
     mapJs += `
-    var module;
-    fetch('//${DOMAIN}:${PORT}${ROOT}/tasks/${taskId}/map/wasm')
-      .then(response => response.arrayBuffer())
-      .then(buffer => new Uint8Array(buffer))
-      .then(binary => {
-        var moduleArgs = {
-          'wasmBinary': binary,
-          'onRuntimeInitialized': function () {
-            var map = module.cwrap('map', 'string', ['string']);
-            var data = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
-            var result = map(data);
-            console.log(JSON.parse(result));
-          }
-        };
-        module = Module(moduleArgs);
-      })`;
+    let map;
+    let module;
+    const fetchMap = () => {
+      return new Promise(resolve => {
+        fetch('//${DOMAIN}:${PORT}${ROOT}/tasks/${taskId}/map/wasm')
+          .then(response => response.arrayBuffer())
+          .then(buffer => new Uint8Array(buffer))
+          .then(binary => {
+            const moduleArgs = {
+              'wasmBinary': binary,
+              'onRuntimeInitialized': () => {
+                map = module.cwrap('map', 'string', ['string']);
+                resolve();
+              }
+            };
+            module = Module(moduleArgs);
+          })
+      });
+    };`;
     task.map.js = mapJs;
-    task.map.wasm = fs.readFileSync('./tmp/map.wasm');
+    task.map.wasm = fs.readFileSync('./workdir/map.wasm');
   }
   database.addTask(taskId, task);
   res.send('Your task has been successfully registered.');

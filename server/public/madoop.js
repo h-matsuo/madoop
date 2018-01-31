@@ -45,7 +45,7 @@
   };
 
   var printDebugInfoToConsole = function (info) {
-    if (typeof MBBVC_MODE_DEBUG !== 'undefined') {
+    if (typeof MADOOP_MODE_DEBUG !== 'undefined') {
       console.log(info);
     }
   };
@@ -56,10 +56,12 @@
     if (taskInfo.task === null) { return; }
     ajaxGetScript(`${ROOT}${taskInfo.task}`, function () {
       ajaxGet(`${ROOT}${taskInfo.data}`, function (data) {
-        var result = map(data);
-        var data = { result: result };
-        ajaxPostJson(`${ROOT}${taskInfo.data}`, data, function () {
-          printDebugInfoToConsole(result);
+        fetchMap().then(() => {
+          var result = map(data);
+          var postData = { result: result };
+          ajaxPostJson(`${ROOT}${taskInfo.data}`, postData, function () {
+            printDebugInfoToConsole(result);
+          });
         });
       });
     });
