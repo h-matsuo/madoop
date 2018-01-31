@@ -4,12 +4,8 @@ const db = [null];
 
 const database = {
 
-  addTask: (map, reduce, data) => {
-    const task = {};
+  addTask: (task) => {
     task.status = 'uncompleted';
-    task.map    = map;
-    task.reduce = reduce;
-    task.data   = data;
     const taskId = db.push(task) - 1;
     task.taskId = taskId;
   },

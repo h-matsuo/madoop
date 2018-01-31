@@ -1,4 +1,8 @@
-// Dependent node modules
+// Dependent Node.js modules
+const fs       = require('fs');
+const execSync = require('child_process').execSync;
+
+// Dependent npm modules
 const express    = require('express');
 const app        = express();
 const cors       = require('cors');
@@ -58,15 +62,36 @@ router.post('/tasks/:taskId/map/data/:dataId', (req, res) => {
 
 router.post('/tasks/register', (req, res) => {
   console.log('[POST] /tasks/register');
-  const map = `
-  function map(data) {
-    var result = null;
-    ${req.body.map}
-    return result;
+  const task = {
+    'language': req.body.language,
+    'map'     : req.body.map,
+    'reduce'  : null,
+    'data'    : req.body.data
+  };
+  if (task.language === 'cpp') {
+    fs.writeFileSync('map.cpp', task.map);
+    execSync('./docker-run.sh cpp');
+    var map = fs.readFileSync('map.js');
+    map += `
+    var module;
+    fetch('map.wasm')
+      .then(response => response.arrayBuffer())
+      .then(buffer => new Uint8Array(buffer))
+      .then(binary => {
+        var moduleArgs = {
+          'wasmBinary': binary,
+          'onRuntimeInitialized': function () {
+            var map = module.cwrap('map', 'string', ['string']);
+            var data = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+            var result = map(data);
+            console.log(JSON.parse(result));
+          }
+        };
+        module = Module(moduleArgs);
+      })`;
+    task.map = map;
   }
-  `;
-  const data = req.body.data;
-  database.addTask(map, null, data);
+  database.addTask(task);
   res.send('Your task has been successfully registered.');
 });
 
