@@ -12,8 +12,9 @@ const bodyParser = require('body-parser');
 const database = require('./lib/database.js');
 
 // Constants
-const ROUTE = process.env.MBBVC_ROUTE || '/mbbvc';
-const PORT  = process.env.MBBVC_PORT  || 3000;
+const DOMAIN = process.env.MADOOP_DOMAIN || 'localhost';
+const PORT   = process.env.MADOOP_PORT   || 3000;
+const ROOT   = process.env.MADOOP_ROOT   || '/madoop';
 
 // Create router defined in 'express' module
 const router = express.Router();
@@ -33,17 +34,23 @@ router.get('/tasks/todo', (req, res) => {
   for (let index = 1; index < taskList.length; index++) {
     const task = taskList[index];
     if (task.status === 'completed') { continue; }
-    todo.task = `/tasks/${task.taskId}/map`;
+    todo.task = `/tasks/${task.taskId}/map/js`;
     todo.data = `/tasks/${task.taskId}/map/data/1`;
     break;
   }
   res.json(todo);
 });
 
-router.get('/tasks/:taskId/map', (req, res) => {
+router.get('/tasks/:taskId/map/js', (req, res) => {
   const taskId = req.params.taskId;
-  console.log(`[GET] /tasks/${taskId}/map`);
-  res.send(database.getTask(taskId).map);
+  console.log(`[GET] /tasks/${taskId}/map/js`);
+  res.send(database.getTask(taskId).map.js);
+});
+
+router.get('/tasks/:taskId/map/wasm', (req, res) => {
+  const taskId = req.params.taskId;
+  console.log(`[GET] /tasks/${taskId}/map/wasm`);
+  res.send(database.getTask(taskId).map.wasm);
 });
 
 router.get('/tasks/:taskId/map/data/:dataId', (req, res) => {
@@ -64,17 +71,25 @@ router.post('/tasks/register', (req, res) => {
   console.log('[POST] /tasks/register');
   const task = {
     'language': req.body.language,
-    'map'     : req.body.map,
+    'map'     : {
+      'src' : req.body['map-src'],
+      'js'  : null,
+      'wasm': null
+    },
     'reduce'  : null,
     'data'    : req.body.data
   };
+  const taskId = database.reserveTaskId();
+  if (task.language === 'js') {
+    task.map.js = task.map.src;
+  }
   if (task.language === 'cpp') {
-    fs.writeFileSync('map.cpp', task.map);
-    execSync('./docker-run.sh cpp');
-    var map = fs.readFileSync('map.js');
-    map += `
+    fs.writeFileSync('./tmp/map.cpp', task.map.src);
+    execSync('./docker-run.sh c++ ./tmp/map');
+    let mapJs     = fs.readFileSync('./tmp/map.js');
+    mapJs += `
     var module;
-    fetch('map.wasm')
+    fetch('//${DOMAIN}:${PORT}${ROOT}/tasks/${taskId}/map/wasm')
       .then(response => response.arrayBuffer())
       .then(buffer => new Uint8Array(buffer))
       .then(binary => {
@@ -89,9 +104,10 @@ router.post('/tasks/register', (req, res) => {
         };
         module = Module(moduleArgs);
       })`;
-    task.map = map;
+    task.map.js = mapJs;
+    task.map.wasm = fs.readFileSync('./tmp/map.wasm');
   }
-  database.addTask(task);
+  database.addTask(taskId, task);
   res.send('Your task has been successfully registered.');
 });
 
@@ -105,7 +121,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
-app.use(ROUTE, router);
-app.use(ROUTE, express.static('public'));
+app.use(ROOT, router);
+app.use(ROOT, express.static('public'));
 app.listen(PORT);
 console.log(`listen on port ${PORT}`);

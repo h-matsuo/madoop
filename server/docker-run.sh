@@ -32,7 +32,7 @@ fi
 case "$1" in
   -h)      FLAG_HELP=true    ;;
   --help)  FLAG_HELP=true    ;;
-  cpp)     FLAG_CPP=true     ;;
+  c++)     FLAG_CPP=true     ;;
   *)
     echo "ERROR: "$1": Unknown option." >&2
     echo "See '$0 --help'." >&2
@@ -51,7 +51,8 @@ Options:
   -h, --help        Print usage
 
 Commands:
-  cpp               Compile C++ source file (map.cpp)
+  c++ <SOURCE>      Compile C++ source file (<SOURCE>.cpp) and generate
+                    <SOURCE>.js, <SOURCE>.wasm
 "
   exit
 fi
@@ -64,11 +65,11 @@ function run_emscripten () {
 
 # Compile C++ source file
 if $FLAG_CPP; then
-  run_emscripten emcc map.cpp \
+  run_emscripten emcc "${2}.cpp" \
     -std=c++11 \
     -s WASM=1 \
     -s MODULARIZE=1 \
-    -s "EXPORTED_FUNCTIONS=['_map']" \
+    -s "EXPORTED_FUNCTIONS=['_${2}']" \
     -s "EXTRA_EXPORTED_RUNTIME_METHODS=['cwrap']" \
-    -o map.js
+    -o "${2}.js"
 fi
