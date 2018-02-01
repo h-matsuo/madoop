@@ -82,10 +82,13 @@ router.post('/tasks/register', (req, res) => {
   const taskId = database.reserveTaskId();
   if (task.language === 'js') {
     task.map.js = `
-    let map;
+    let execMap;
     const fetchMap = () => {
       return new Promise(resolve => {
-        map = ${task.map.src}
+        execMap = (data, emit) => {
+          ${task.map.src}
+          map(data, emit);
+        };
         resolve();
       });
     };`;

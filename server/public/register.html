@@ -41,18 +41,24 @@
       <legend>Map function to be executed on client browsers</legend>
       <code>
 <textarea name="map-src">
-function map(data) {
-  var result = {};
-
-  // SAMPLE: word count
-  data.split(/\s/).forEach(function (element, index, ar) {
+/*
+ * Madoop implementation example: word count: map function
+ */
+function map( data /* :string   */ ,
+              emit /* :function */ ) {
+  // Initialize result
+  let result = {};
+  // Count the number of occurrences of each word
+  data.split(/\s/).forEach(element => {
     if (!result.hasOwnProperty(element)) {
       result[element] = 0;
     }
     result[element]++;
   });
-
-  return result;
+  // Emit key-value pairs
+  for (const key in result) {
+    emit(key, result[key]);
+  }
 }
 </textarea>
       </code>
@@ -61,8 +67,7 @@ function map(data) {
       <legend>Data to be input into the map function</legend>
       <code>
 <textarea name="data">
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-</textarea>
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</textarea>
       </code>
     </fieldset>
     <div><input type="submit" value="送信"> <input type="reset" value="リセット"></div>
