@@ -59,9 +59,9 @@ extern "C" { // REQUIRED to prevent C++ name mangling
   void map(const char* data)
   {
     // Count the number of occurrences of each word
-    std::string data_str = std::string(data);
+    const std::string &data_str = std::string(data);
     std::unordered_map<std::string, int> hashmap;
-    auto words = split(data_str, ' ');
+    const std::vector<std::string> &words = split(data_str, ' ');
     for (auto &element: words) {
       hashmap[element]++;
     }
