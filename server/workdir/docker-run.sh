@@ -27,5 +27,6 @@ if $FLAG_CPP; then
     -s MODULARIZE=1 \
     -s "EXPORTED_FUNCTIONS=['_${2}']" \
     -s "EXTRA_EXPORTED_RUNTIME_METHODS=['cwrap']" \
+    --js-library lib.js \
     -o "${2}.js"
 fi

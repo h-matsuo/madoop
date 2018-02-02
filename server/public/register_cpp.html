@@ -41,10 +41,49 @@
       <legend>Map function to be executed on client browsers</legend>
       <code>
 <textarea name="map-src">
+/*
+ * Madoop implementation example: word count: map function
+ */
+
 #include <vector>
 #include <string>
 #include <sstream>
 #include <unordered_map>
+
+std::vector<std::string> split(const std::string &, char);
+std::string to_json_str(const std::unordered_map<std::string, int> &);
+
+extern "C" { // required to prevent C++ name mangling
+
+  extern void emit(char*, char*); // required to emit key-value pairs
+  extern void calljs(int, int);
+
+  char* map(const char* data)
+  {
+    char* result;
+
+    // Count the number of occurrences of each word
+    std::string data_str = std::string(data);
+    std::unordered_map<std::string, int> hashmap;
+    auto words = split(data_str, ' ');
+    for (auto &element: words) {
+      hashmap[element]++;
+    }
+
+    // Convert hashmap to JSON string
+    std::string result_str = to_json_str(hashmap);
+
+    // Convert string to char*
+    result = new char[result_str.length() + 1];
+    std::strcpy(result, result_str.c_str());
+
+    emit("key", result);
+    emit("x", "y");
+
+    return result;
+  }
+
+}
 
 // Split `std::string` with `char`
 std::vector<std::string> split(const std::string &str, char sep)
@@ -68,32 +107,6 @@ std::string to_json_str(const std::unordered_map<std::string, int> &hashmap)
   result_str.pop_back(); // remove last ','
   result_str += "}";
   return result_str;
-}
-
-extern "C" {
-
-  char* map(const char* data)
-  {
-    char* result;
-
-    // SAMPLE: word count
-    std::string data_str = std::string(data);
-    std::unordered_map<std::string, int> hashmap;
-    auto words = split(data_str, ' ');
-    for (auto &element: words) {
-      hashmap[element]++;
-    }
-
-    // Convert hashmap to JSON string
-    std::string result_str = to_json_str(hashmap);
-
-    // Convert string to char*
-    result = new char[result_str.length() + 1];
-    std::strcpy(result, result_str.c_str());
-
-    return result;
-  }
-
 }
 </textarea>
       </code>

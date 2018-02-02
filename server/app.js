@@ -98,7 +98,7 @@ router.post('/tasks/register', (req, res) => {
     execSync('./workdir/docker-run.sh c++ map');
     let mapJs = fs.readFileSync('./workdir/map.js');
     mapJs += `
-    let map;
+    let execMap;
     let module;
     const fetchMap = () => {
       return new Promise(resolve => {
@@ -109,7 +109,10 @@ router.post('/tasks/register', (req, res) => {
             const moduleArgs = {
               'wasmBinary': binary,
               'onRuntimeInitialized': () => {
-                map = module.cwrap('map', 'string', ['string']);
+                const map = module.cwrap('map', 'string', ['string']);
+                execMap = (data, emit) => {
+                  map(data);
+                };
                 resolve();
               }
             };

@@ -1,3 +1,4 @@
 *
 !.gitignore
 !docker-run.sh
+!lib.js
