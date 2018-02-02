@@ -99,6 +99,7 @@ router.post('/tasks/register', (req, res) => {
     let mapJs = fs.readFileSync('./workdir/map.js');
     mapJs += `
     let execMap;
+    let execEmit;
     let module;
     const fetchMap = () => {
       return new Promise(resolve => {
@@ -109,8 +110,9 @@ router.post('/tasks/register', (req, res) => {
             const moduleArgs = {
               'wasmBinary': binary,
               'onRuntimeInitialized': () => {
-                const map = module.cwrap('map', 'string', ['string']);
+                const map = module.cwrap('map', null, ['string']);
                 execMap = (data, emit) => {
+                  execEmit = emit;
                   map(data);
                 };
                 resolve();

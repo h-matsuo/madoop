@@ -51,17 +51,13 @@
 #include <unordered_map>
 
 std::vector<std::string> split(const std::string &, char);
-std::string to_json_str(const std::unordered_map<std::string, int> &);
 
-extern "C" { // required to prevent C++ name mangling
+extern "C" { // REQUIRED to prevent C++ name mangling
 
-  extern void emit(char*, char*); // required to emit key-value pairs
-  extern void calljs(int, int);
+  extern void emit(const char*, const char*); // REQUIRED to emit key-value pairs
 
-  char* map(const char* data)
+  void map(const char* data)
   {
-    char* result;
-
     // Count the number of occurrences of each word
     std::string data_str = std::string(data);
     std::unordered_map<std::string, int> hashmap;
@@ -69,18 +65,12 @@ extern "C" { // required to prevent C++ name mangling
     for (auto &element: words) {
       hashmap[element]++;
     }
-
-    // Convert hashmap to JSON string
-    std::string result_str = to_json_str(hashmap);
-
-    // Convert string to char*
-    result = new char[result_str.length() + 1];
-    std::strcpy(result, result_str.c_str());
-
-    emit("key", result);
-    emit("x", "y");
-
-    return result;
+    // Emit key-value pairs
+    for (auto &element: hashmap) {
+      const std::string &key   = element.first;
+      const std::string &value = std::to_string(element.second);
+      emit(key.c_str(), value.c_str());
+    }
   }
 
 }
@@ -91,22 +81,10 @@ std::vector<std::string> split(const std::string &str, char sep)
   std::vector<std::string> v;
   std::stringstream ss(str);
   std::string buffer;
-  while( std::getline(ss, buffer, sep) ) {
+  while(std::getline(ss, buffer, sep)) {
     v.push_back(buffer);
   }
   return v;
-}
-
-// Convert `std::unordered_map<std::string, int>` to JSON string (`std::string`)
-std::string to_json_str(const std::unordered_map<std::string, int> &hashmap)
-{
-  std::string result_str = "{";
-  for (auto itr = hashmap.begin(); itr != hashmap.end(); ++itr) {
-    result_str += "\"" + itr->first + "\":" + std::to_string(itr->second) + ",";
-  }
-  result_str.pop_back(); // remove last ','
-  result_str += "}";
-  return result_str;
 }
 </textarea>
       </code>
