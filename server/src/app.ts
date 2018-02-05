@@ -1,4 +1,4 @@
-import DataBase from './lib/DataBase';
+import DataBase from './DataBase';
 
 const db = new DataBase();
 

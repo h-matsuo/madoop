@@ -1,3 +1,5 @@
+import Language from './Language';
+
 class Reduce {
 
 }

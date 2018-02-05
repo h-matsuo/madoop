@@ -1,9 +1,11 @@
+import Language from './Language';
+
 class Map {
 
-  private language: string;
+  private language: Language;
   private source: string;
 
-  getLanguage(): string {
+  getLanguage(): Language {
     return this.language;
   }
 
