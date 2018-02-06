@@ -1,6 +1,6 @@
-import Language from './Language';
+import Method from './Method';
 
-class Reduce {
+class Reduce extends Method {
 
 }
 

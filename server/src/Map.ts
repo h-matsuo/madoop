@@ -1,17 +1,6 @@
-import Language from './Language';
+import Method from './Method';
 
-class Map {
-
-  private language: Language;
-  private source: string;
-
-  getLanguage(): Language {
-    return this.language;
-  }
-
-  getSource(): string {
-    return this.source;
-  }
+class Map extends Method {
 
 }
 

@@ -9,6 +9,7 @@
   "author": "Hiroyuki Matsuo",
   "license": "MIT",
   "dependencies": {
+    "@types/node": "^9.4.0",
     "cors": "^2.8.4",
     "express": "^4.16.2"
   },
