@@ -1,8 +1,8 @@
-import Language from './Language';
-import MadoopError from './MadoopError';
-
 import * as fs from 'fs';
 import * as childProcess from 'child_process';
+
+import Language from './Language';
+import MadoopError from './MadoopError';
 
 class Method {
 
@@ -11,7 +11,10 @@ class Method {
   private js: Function = null;
   private wasm: Uint8Array = null;
 
-  constructor(language?: Language, source?: string, js?: Function, wasm?: Uint8Array) {
+  constructor(language?: Language,
+              source?: string,
+              js?: Function,
+              wasm?: Uint8Array) {
     if (language) { this.language = language; }
     if (source) { this.source = source; }
     if (js) { this.js = js; }
