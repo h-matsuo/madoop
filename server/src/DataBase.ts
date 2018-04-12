@@ -3,10 +3,10 @@ import MadoopError from './MadoopError';
 
 class DataBase {
 
-  private jobs: [Job] = [null];
+  private jobs: Job[];
 
   constructor() {
-    // this.jobs = [null];
+    this.jobs = [null];
   }
 
   getJob(id: number): Job {
