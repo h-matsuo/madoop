@@ -1,21 +1,21 @@
 class MapResult {
 
-  private pairs: Object[];
+  private pairs: Map<any, any[]>;
 
   constructor() {
-    this.pairs = [];
+    this.pairs = new Map();
   }
 
-  getPairs(): Object[] {
+  getPairs(): Map<any, any[]> {
     return this.pairs;
   }
 
   addPair(key: any, value: any): void {
-    const element = {
-      'key': key,
-      'value': value
-    };
-    this.pairs.push(element);
+    if (this.pairs.has(key)) {
+      this.pairs.get(key).push(value);
+    } else {
+      this.pairs.set(key, [value]);
+    }
   }
 
 }

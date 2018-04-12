@@ -1,15 +1,13 @@
-import Map from './Map';
+import MapMethod from './MapMethod';
 import MapResult from './MapResult';
-import Shuffle from './Shuffle';
 import Reduce from './Reduce';
 import Data from './Data';
 import Result from './Result';
 
 class Job {
 
-  private map: Map;
+  private map: MapMethod;
   private mapResult: MapResult;
-  private shuffle: Shuffle;
   private reduce: Reduce;
   private data: Data;
   private result: Result;
@@ -18,16 +16,12 @@ class Job {
     this.mapResult = new MapResult();
   }
 
-  getMap(): Map {
+  getMapMethod(): MapMethod {
     return this.map;
   }
 
   getMapResult(): MapResult {
     return this.mapResult;
-  }
-
-  getShuffle(): Shuffle {
-    return this.shuffle;
   }
 
   getReduce(): Reduce {
@@ -42,16 +36,12 @@ class Job {
     return this.result;
   }
 
-  setMap(map: Map): void {
+  setMapMethod(map: MapMethod): void {
     this.map = map;
   }
 
   addMapResultPair(key: any, value: any): void {
     this.mapResult.addPair(key, value);
-  }
-
-  setShuffle(shuffle: Shuffle): void {
-    this.shuffle = shuffle;
   }
 
   setReduce(reduce: Reduce): void {

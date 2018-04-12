@@ -1,16 +1,14 @@
 import DataBase from './DataBase';
 import Job from './Job';
 import Data from './Data';
-import Map from './Map';
-import Shuffle from './Shuffle';
+import MapMethod from './MapMethod';
 import Reduce from './Reduce';
 import Language from './Language';
 
 const db = new DataBase();
 let job = new Job();
 let data = new Data();
-let map = new Map();
-let shuffle = new Shuffle();
+let map = new MapMethod();
 let reduce = new Reduce();
 
 let source: string = null;
@@ -97,42 +95,27 @@ std::vector<std::string> split(const std::string &str, char sep)
 // map.compile();
 ////////////////////////////////////////////////////////////////////////////////
 
-shuffle.setLanguage(Language.JavaScript);
-shuffle.setSource(`
-function shuffle( pairs, /* :Object[] */
-                  emit   /* :function */ ) {
-  //
-}
-`);
-shuffle.setJs(new Function('data', 'emit', `
-  ${source}
-  map(data, emit);
-`));
-
-
-
-job.setMap(map);
-job.setShuffle(shuffle);
+job.setMapMethod(map);
 
 data.setData('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 job.setData(data);
 
 const id = db.addJob(job);
 
-console.log('\n===== Map Phase ====================')
+console.log('\n===== Map Phase ====================');
 
-job.getMap().getJs()(job.getData().getData(), (key, value) => {
+job.getMapMethod().getJs()(job.getData().getData(), (key, value) => {
   job.addMapResultPair(key, value);
 });
 
-job.getMap().getJs()(job.getData().getData(), (key, value) => {
+job.getMapMethod().getJs()(job.getData().getData(), (key, value) => {
   job.addMapResultPair(key, value);
 });
 
 setTimeout(() => {
 
-  console.log('\n===== Map Result ====================')
+  console.log('\n===== Map Result ====================');
 
   console.log(job.getMapResult().getPairs());
 
-}, 1000);
+}, 100);
