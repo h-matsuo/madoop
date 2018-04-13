@@ -1,6 +1,7 @@
 import MapMethod from './MapMethod';
 import MapResult from './MapResult';
 import Reduce from './Reduce';
+import ReduceResult from './ReduceResult';
 import Data from './Data';
 import Result from './Result';
 
@@ -9,11 +10,13 @@ class Job {
   private map: MapMethod;
   private mapResult: MapResult;
   private reduce: Reduce;
+  private reduceResult: ReduceResult;
   private data: Data;
   private result: Result;
 
   constructor() {
     this.mapResult = new MapResult();
+    this.reduceResult = new ReduceResult();
   }
 
   getMapMethod(): MapMethod {
@@ -26,6 +29,10 @@ class Job {
 
   getReduce(): Reduce {
     return this.reduce;
+  }
+
+  getReduceResult(): ReduceResult {
+    return this.reduceResult;
   }
 
   getData(): Data {
@@ -48,6 +55,10 @@ class Job {
     this.reduce = reduce;
   }
 
+  addReduceResultPair(key: any, value: any): void {
+    this.reduceResult.addPair(key, value);
+  }
+
   setData(data: Data): void {
     this.data = data;
   }
@@ -55,7 +66,6 @@ class Job {
   setResult(result: Result): void {
     this.result = result;
   }
-
 
 }
 

@@ -43,7 +43,7 @@ map.setJs(new Function('data', 'emit', `
 `));
 ////////////////////////////////////////////////////////////////////////////////
 
-///// Example of C//////////////////////////////////////////////////////////////
+///// Example of C /////////////////////////////////////////////////////////////
 source = `
 /*
  * Madoop implementation example: word count: map function
@@ -97,6 +97,30 @@ std::vector<std::string> split(const std::string &str, char sep)
 
 job.setMapMethod(map);
 
+///// Example of pure JavaScript ///////////////////////////////////////////////
+source = `
+/*
+ * Madoop implementation example: word count: reduce function
+ */
+function reduce( data /* :Map<key, values[]> */ ,
+                 emit /* :function           */ ) {
+  data.forEach((values, key) => {
+    let sum = 0;
+    values.forEach(value => { sum += value; });
+    emit(key, sum);
+  });
+}
+`;
+reduce.setLanguage(Language.JavaScript);
+reduce.setSource(source);
+reduce.setJs(new Function('data', 'emit', `
+  ${source}
+  reduce(data, emit);
+`));
+////////////////////////////////////////////////////////////////////////////////
+
+job.setReduce(reduce);
+
 data.setData('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 job.setData(data);
 
@@ -104,9 +128,9 @@ const id = db.addJob(job);
 
 console.log('\n===== Map Phase ====================');
 
-job.getMapMethod().getJs()(job.getData().getData(), (key, value) => {
-  job.addMapResultPair(key, value);
-});
+// job.getMapMethod().getJs()(job.getData().getData(), (key, value) => {
+//   job.addMapResultPair(key, value);
+// });
 
 job.getMapMethod().getJs()(job.getData().getData(), (key, value) => {
   job.addMapResultPair(key, value);
@@ -117,5 +141,19 @@ setTimeout(() => {
   console.log('\n===== Map Result ====================');
 
   console.log(job.getMapResult().getPairs());
+
+  console.log('\n===== Reduce Phase ====================');
+
+  job.getReduce().getJs()(job.getMapResult().getPairs(), (key, value) => {
+    job.addReduceResultPair(key, value);
+  })
+
+  setTimeout(() => {
+
+    console.log('\n===== Reduce Result ====================');
+
+    console.log(job.getReduceResult().getPairs());
+
+  }, 100);
 
 }, 100);
