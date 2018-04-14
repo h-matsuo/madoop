@@ -25,7 +25,6 @@ class DataBase {
     return id;
   }
 
-
 }
 
 export default DataBase;

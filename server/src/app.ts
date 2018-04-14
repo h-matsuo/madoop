@@ -121,7 +121,7 @@ reducer.setJs(new Function('data', 'emit', `
 
 job.setReducer(reducer);
 
-data.setData('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+data.setData('is this a pen ? this is a pen . it is a pencil .');
 job.setData(data);
 
 const id = db.addJob(job);
@@ -132,15 +132,15 @@ console.log('\n===== Map Phase ====================');
 //   job.addMapResultPair(key, value);
 // });
 
-job.getMapper().getJs()('おにぎり 寿司 天ぷら そば うどん カレーライス ピザ', (key, value) => {
+job.getMapper().getJs()('is this a pen ?', (key, value) => {
   job.addMapResultPair(key, value);
 });
 
-job.getMapper().getJs()('ピザ スパゲッティ うどん', (key, value) => {
+job.getMapper().getJs()('this is a pen .', (key, value) => {
   job.addMapResultPair(key, value);
 });
 
-job.getMapper().getJs()('寿司 ピザ ステーキ ハンバーグ', (key, value) => {
+job.getMapper().getJs()('it is a pencil .', (key, value) => {
   job.addMapResultPair(key, value);
 });
 
