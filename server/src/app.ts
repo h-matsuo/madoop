@@ -1,9 +1,9 @@
-import DataBase from './DataBase';
-import Job from './Job';
-import Data from './Data';
-import Mapper from './Mapper';
-import Reducer from './Reducer';
-import Language from './Language';
+import DataBase from './lib/DataBase';
+import Job from './lib/Job';
+import Data from './lib/Data';
+import Mapper from './lib/Mapper';
+import Reducer from './lib/Reducer';
+import Language from './lib/Language';
 
 const db = new DataBase();
 const job = new Job();
