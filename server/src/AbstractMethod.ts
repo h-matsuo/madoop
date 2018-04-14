@@ -4,7 +4,7 @@ import * as childProcess from 'child_process';
 import Language from './Language';
 import MadoopError from './MadoopError';
 
-class Method {
+abstract class AbstractMethod {
 
   private language: Language = null;
   private source: string = null;
@@ -73,4 +73,4 @@ class Method {
 
 }
 
-export default Method;
+export default AbstractMethod;

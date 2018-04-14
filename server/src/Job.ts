@@ -1,15 +1,15 @@
-import MapMethod from './MapMethod';
+import Mapper from './Mapper';
 import MapResult from './MapResult';
-import Reduce from './Reduce';
+import Reducer from './Reducer';
 import ReduceResult from './ReduceResult';
 import Data from './Data';
 import Result from './Result';
 
 class Job {
 
-  private map: MapMethod;
+  private mapper: Mapper;
   private mapResult: MapResult;
-  private reduce: Reduce;
+  private reducer: Reducer;
   private reduceResult: ReduceResult;
   private data: Data;
   private result: Result;
@@ -19,16 +19,16 @@ class Job {
     this.reduceResult = new ReduceResult();
   }
 
-  getMapMethod(): MapMethod {
-    return this.map;
+  getMapper(): Mapper {
+    return this.mapper;
   }
 
   getMapResult(): MapResult {
     return this.mapResult;
   }
 
-  getReduce(): Reduce {
-    return this.reduce;
+  getReducer(): Reducer {
+    return this.reducer;
   }
 
   getReduceResult(): ReduceResult {
@@ -43,16 +43,16 @@ class Job {
     return this.result;
   }
 
-  setMapMethod(map: MapMethod): void {
-    this.map = map;
+  setMapper(mapper: Mapper): void {
+    this.mapper = mapper;
   }
 
   addMapResultPair(key: any, value: any): void {
     this.mapResult.addPair(key, value);
   }
 
-  setReduce(reduce: Reduce): void {
-    this.reduce = reduce;
+  setReducer(reducer: Reducer): void {
+    this.reducer = reducer;
   }
 
   addReduceResultPair(key: any, value: any): void {
