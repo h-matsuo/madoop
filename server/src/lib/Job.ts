@@ -2,7 +2,7 @@ import Mapper from './Mapper';
 import MapResult from './MapResult';
 import Reducer from './Reducer';
 import ReduceResult from './ReduceResult';
-import Data from './Data';
+import InputData from './InputData';
 import Result from './Result';
 
 class Job {
@@ -11,7 +11,7 @@ class Job {
   private mapResult: MapResult;
   private reducer: Reducer;
   private reduceResult: ReduceResult;
-  private data: Data;
+  private inputData: InputData;
   private result: Result;
 
   constructor() {
@@ -35,9 +35,9 @@ class Job {
     return this.reduceResult;
   }
 
-  getData(): Data {
-    return this.data;
-  }
+  // getData(): Data {
+  //   return this.data;
+  // }
 
   getResult(): Result {
     return this.result;
@@ -59,9 +59,9 @@ class Job {
     this.reduceResult.addPair(key, value);
   }
 
-  setData(data: Data): void {
-    this.data = data;
-  }
+  // setData(data: Data): void {
+  //   this.data = data;
+  // }
 
   setResult(result: Result): void {
     this.result = result;

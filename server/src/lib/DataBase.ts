@@ -6,10 +6,13 @@ class DataBase {
   private jobs: Job[];
 
   constructor() {
-    this.jobs = [null];
+    this.jobs = [];
   }
 
   getJob(id: number): Job {
+    if (!this.jobs[id]) {
+      throw new MadoopError(`job id ${id} is not registered`);
+    }
     return this.jobs[id];
   }
 

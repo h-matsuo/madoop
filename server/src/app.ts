@@ -1,13 +1,13 @@
 import DataBase from './lib/DataBase';
 import Job from './lib/Job';
-import Data from './lib/Data';
+// import MyInputData from './MyInputData';
 import Mapper from './lib/Mapper';
 import Reducer from './lib/Reducer';
 import Language from './lib/Language';
 
 const db = new DataBase();
 const job = new Job();
-const data = new Data();
+// const inputData = new MyInputData();
 const mapper = new Mapper();
 const reducer = new Reducer();
 
@@ -121,8 +121,8 @@ reducer.setJs(new Function('data', 'emit', `
 
 job.setReducer(reducer);
 
-data.setData('is this a pen ? this is a pen . it is a pencil .');
-job.setData(data);
+// data.setData('is this a pen ? this is a pen . it is a pencil .');
+// job.setData(data);
 
 const id = db.addJob(job);
 
@@ -143,6 +143,8 @@ job.getMapper().getJs()('this is a pen .', (key, value) => {
 job.getMapper().getJs()('it is a pencil .', (key, value) => {
   job.addMapResultPair(key, value);
 });
+
+/*
 
 setTimeout(() => {
 
@@ -165,3 +167,5 @@ setTimeout(() => {
   }, 100);
 
 }, 100);
+
+*/

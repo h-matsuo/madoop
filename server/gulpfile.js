@@ -7,8 +7,7 @@ const notify     = require('gulp-notify');  // エラー時に通知を出す
 gulp.task('build', () => {
   const project = ts.createProject('./tsconfig.json');
   return gulp.src([
-      './src/*.ts',
-      '!./node_modules/**'
+      './src/**/*.ts'
     ])
     .pipe(plumber({
       errorHandler: notify.onError('Error: <%= error.message %>')
@@ -22,5 +21,5 @@ gulp.task('build', () => {
 });
 
 gulp.task('build:watch', ['build'], () => {
-  return gulp.watch('./src/*.ts', ['build']);
+  return gulp.watch('./src/**/*.ts', ['build']);
 });
