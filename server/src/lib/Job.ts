@@ -1,7 +1,7 @@
 import DataController from './DataController';
 import InputData from './InputData';
-import Mapper from './Mapper';
-import Reducer from './Reducer';
+import AbstractMapper from './AbstractMapper';
+import AbstractReducer from './AbstractReducer';
 import Task from './Task';
 
 export default
@@ -9,30 +9,31 @@ class Job {
 
   private dataController: DataController;
   private jobId: string;
-  private mapper: Mapper;
-  private reducer: Reducer;
+  private mapper: AbstractMapper;
+  private reducer: AbstractReducer;
 
   constructor(jobId: string) {
     this.jobId = jobId;
+    this.dataController = new DataController();
   }
 
   getJobId(): string {
     return this.jobId;
   }
 
-  getMapper(): Mapper {
+  getMapper(): AbstractMapper {
     return this.mapper;
   }
 
-  getReducer(): Reducer {
+  getReducer(): AbstractReducer {
     return this.reducer;
   }
 
-  setMapper(mapper: Mapper): void {
+  setMapper(mapper: AbstractMapper): void {
     this.mapper = mapper;
   }
 
-  setReducer(reducer: Reducer): void {
+  setReducer(reducer: AbstractReducer): void {
     this.reducer = reducer;
   }
 
@@ -44,16 +45,64 @@ class Job {
     this.dataController.setInputData(inputData);
   }
 
-  getNextTask(): Task {
-    // TODO
+  getNextTask(): Task | null {
+    let task = new Task();
+    const nextMapperInputData = this.dataController.getNextMapperInputData();
+    if (nextMapperInputData) {
+      task.setTaskId('map');
+      task.setTaskInputData(nextMapperInputData);
+      task.setMethod(() => {
+        task.result = [];
+        this.mapper.map(
+          nextMapperInputData,
+          (key, value) => {
+            const element = {
+              'key': key,
+              'value': value
+            };
+            task.result.push(element);
+          }
+        );
+      });
+    } else {
+      const nextReducerInputData = this.dataController.getNextReducerInputData();
+      if (nextReducerInputData) {
+        task.setTaskId('reduce');
+        task.setTaskInputData(nextReducerInputData);
+        task.setMethod(() => {
+          task.result = [];
+          this.reducer.reduce(
+            nextReducerInputData,
+            (key, value) => {
+              const element = {
+                'key': key,
+                'value': value
+              };
+              task.result.push(element);
+            }
+          );
+        });
+      } else {
+        task = null;
+      }
+    }
+    return task;
   }
 
   completeTask(task: Task): void {
-    // TODO
+    if (task.getTaskId() === 'map') {
+      task.result.forEach(element => {
+        this.dataController.addMapperResultPair(element.key, element.value);
+      });
+    } else if (task.getTaskId() === 'reduce') {
+      task.result.forEach(element => {
+        this.dataController.addReducerResultPair(element.key, element.value);
+      });
+    }
   }
 
   getResult(): any {
-    // TODO
+    return this.dataController.getReducerResultPairs();
   }
 
 }

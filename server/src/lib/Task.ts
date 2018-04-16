@@ -4,7 +4,7 @@ export default
 class Task {
 
   private method: Function;
-  private result: any;
+  public result: any;
   private taskId: string;
   private taskInputData: any;
 
@@ -41,7 +41,7 @@ class Task {
   }
 
   exec(): void {
-    // TODO
+    this.method();
   }
 
 }

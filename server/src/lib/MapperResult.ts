@@ -1,4 +1,5 @@
-class MapResult {
+export default
+class MapperResult {
 
   private pairs: Map<any, any[]>;
 
@@ -19,5 +20,3 @@ class MapResult {
   }
 
 }
-
-export default MapResult;

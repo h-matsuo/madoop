@@ -9,9 +9,11 @@ class MyMapper extends AbstractMapper {
   ): void {
 
     inputData.forEach(line => {
+      if (line === '') { return; }
       const split = line.split(',');
       const cityName = split[0];
       const rain = parseFloat(split[2]);
+      if (Number.isNaN(rain)) { return; }
       emitFunc(cityName, rain);
     })
 

@@ -1,6 +1,7 @@
 import MadoopError from './MadoopError';
 
-class ReduceResult {
+export default
+class ReducerResult {
 
   private pairs: Map<any, any>;
 
@@ -20,5 +21,3 @@ class ReduceResult {
   }
 
 }
-
-export default ReduceResult;

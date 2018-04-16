@@ -1,9 +1,9 @@
 export default
 abstract class AbstractMapper {
 
-  execMap(): void {
+  // execMap(): void {
     // map()
-  }
+  // }
 
   abstract map(
     inputData: any,

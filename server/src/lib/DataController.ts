@@ -1,16 +1,25 @@
 import InputData from './InputData';
+import MapperResult from './MapperResult';
+import ReducerResult from './ReducerResult';
+import Reducer from './Reducer';
 
 export default
 class DataController {
 
   private inputData: InputData;
+  private mapperResult: MapperResult;
+  private reducerResult: ReducerResult;
+
   private mapCompleted: boolean[];
-  // private mapResultPairs: Map<any, any[]>;
+  private reduceInputData: Map<any, any[]>[];
+  private reduceCompleted: boolean[];
 
   constructor(inputData: InputData = null) {
     if (inputData) {
       this.setInputData(inputData);
     }
+    this.mapperResult = new MapperResult();
+    this.reducerResult = new ReducerResult();
   }
 
   getInputData(): InputData {
@@ -23,7 +32,7 @@ class DataController {
     this.mapCompleted = (new Array(dataLength)).fill(false);
   }
 
-  getNextMapperInputDataId(): number {
+  hasNextMapperInputData(): boolean {
     let id = -1;
     for (let i = 0; i < this.mapCompleted.length; ++i) {
       if (!this.mapCompleted[i]) {
@@ -31,15 +40,72 @@ class DataController {
         break;
       }
     }
-    return id;
+    if (id >= 0) {
+      return true;
+    }
+    return false;
   }
 
-  addMapperResult(): void {
-
+  getNextMapperInputData(): any | null {
+    let id = -1;
+    for (let i = 0; i < this.mapCompleted.length; ++i) {
+      if (!this.mapCompleted[i]) {
+        this.mapCompleted[i] = true;
+        id = i;
+        break;
+      }
+    }
+    if (id >= 0) {
+      return this.inputData.getInputData(id);
+    } else {
+      return null;
+    }
   }
 
-  addReducerResult(): void {
+  getMapperResultPairs(): Map<any, any[]> {
+    return this.mapperResult.getPairs();
+  }
 
+  addMapperResultPair(key: any, value: any): void {
+    this.mapperResult.addPair(key, value);
+    if (!this.hasNextMapperInputData()) {
+      this.setUpReducerInputData();
+    }
+  }
+
+  setUpReducerInputData(): void {
+    const dataLength = this.mapperResult.getPairs().size;
+    this.reduceInputData = [];
+    this.reduceCompleted = (new Array(dataLength)).fill(false);
+    this.mapperResult.getPairs().forEach((values, key) => {
+      const data = new Map<any, any[]>();
+      data.set(key, values);
+      this.reduceInputData.push(data);
+    });
+  }
+
+  getNextReducerInputData(): Map<any, any[]> | null {
+    let id = -1;
+    for (let i = 0; i < this.reduceCompleted.length; ++i) {
+      if (!this.reduceCompleted[i]) {
+        this.reduceCompleted[i] = true;
+        id = i;
+        break;
+      }
+    }
+    if (id >= 0) {
+      return this.reduceInputData[id];
+    } else {
+      return null;
+    }
+  }
+
+  addReducerResultPair(key: any, value: any): void {
+    this.reducerResult.addPair(key, value);
+  }
+
+  getReducerResultPairs(): Map<any, any> {
+    return this.reducerResult.getPairs();
   }
 
 }

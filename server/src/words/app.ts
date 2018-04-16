@@ -3,7 +3,7 @@ import MyInputData from './MyInputData';
 import MyMapper from './MyMapper';
 import MyReducer from './MyReducer';
 
-const job = new Job('rain');
+const job = new Job('words');
 const inputData = new MyInputData();
 const mapper = new MyMapper();
 const reducer = new MyReducer();
