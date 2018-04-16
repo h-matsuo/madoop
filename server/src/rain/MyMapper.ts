@@ -1,10 +1,12 @@
-import AbstractMapper from './AbstractMapper';
+import AbstractMapper from '../lib/AbstractMapper';
 
 export default
 class MyMapper extends AbstractMapper {
 
-  map(inputData: string[],
-      emitFunc: (key: string, value: number) => void): void {
+  map(
+    inputData: string[],
+    emitFunc: (key: string, value: number) => void
+  ): void {
 
     inputData.forEach(line => {
       const split = line.split(',');
