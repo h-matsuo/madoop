@@ -3,3 +3,6 @@
 
 # Visual Studio Code
 .vscode
+
+# auto generated files
+build
