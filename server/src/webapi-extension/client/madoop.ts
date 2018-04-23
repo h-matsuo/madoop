@@ -58,4 +58,15 @@ declare var MADOOP_MODE_DEBUG: any;
   };
 
 
+  const main = async (): Promise<void> => {
+
+    const todo = await ajaxGet(`${ROOT}/tasks/todo`);
+    const taskInfo = JSON.parse(todo);
+    if (taskInfo.task === null) { return; }
+    await ajaxGetScript(`${ROOT}${taskInfo.task}`);
+    const inputData = await ajaxGet(`${ROOT}${taskInfo.data}`);
+
+  };
+  main();
+
 })();

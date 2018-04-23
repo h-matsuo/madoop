@@ -1,6 +1,7 @@
 import Job from './Job';
 import MadoopError from './MadoopError';
 
+export default
 class DataBase {
 
   private jobs: Job[];
@@ -29,5 +30,3 @@ class DataBase {
   }
 
 }
-
-export default DataBase;
