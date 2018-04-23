@@ -3,7 +3,7 @@ declare var MADOOP_MODE_DEBUG: any;
 
   const ROOT = '//localhost:3000/madoop';
 
-  async function ajaxGet(url: string): Promise<string> {
+  const ajaxGet = async (url: string): Promise<string> => {
     return new Promise<string>((resolve, reject) => {
       const req = new XMLHttpRequest();
       req.onreadystatechange = function(): void {
@@ -16,16 +16,16 @@ declare var MADOOP_MODE_DEBUG: any;
       req.open('GET', url, true); // true: ensure async request
       req.send();
     });
-  }
+  };
 
-  async function ajaxGetScript(url: string): Promise<void> {
+  const ajaxGetScript = async (url: string): Promise<void> => {
     const response = await ajaxGet(url);
     const script = document.createElement('script');
     script.text = response;
     document.head.appendChild(script).parentNode.removeChild(script);
-  }
+  };
 
-  async function ajaxPost(url: string, data: any): Promise<string> {
+  const ajaxPost = async (url: string, data: any): Promise<string> => {
     return new Promise<string>((resolve, reject) => {
       const req = new XMLHttpRequest();
       req.onreadystatechange = function(): void {
@@ -39,9 +39,9 @@ declare var MADOOP_MODE_DEBUG: any;
       req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
       req.send();
     });
-  }
+  };
 
-  async function ajaxPostJson(url: string, jsonData: Object): Promise<string> {
+  const ajaxPostJson = async (url: string, jsonData: Object): Promise<string> => {
     let data = '';
     Object.keys(jsonData).forEach(function (key) {
       const val = this[key]; // `this` === `jsonData`
@@ -49,7 +49,7 @@ declare var MADOOP_MODE_DEBUG: any;
     }, jsonData);
     const response = await ajaxPost(url, data);
     return response;
-  }
+  };
 
   const printDebugInfo = (info: any) => {
     if (typeof MADOOP_MODE_DEBUG !== 'undefined') {
