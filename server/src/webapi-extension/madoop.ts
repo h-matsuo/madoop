@@ -3,66 +3,53 @@ declare var MADOOP_MODE_DEBUG: any;
 
   const ROOT = '//localhost:3000/madoop';
 
-  const ajaxGet = (
-    url: string,
-    callback: (responseText: string) => any
-  ): void => {
-    const req = new XMLHttpRequest();
-    req.onreadystatechange = function(): void {
-      if (req.readyState !== 4) { return; }
-      if (req.status !== 200) {
-        throw new Error('[Madoop] cannot communicate with server.');
+  async function ajaxGet(url: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = function(): void {
+        if (req.readyState !== 4) { return; }
+        if (req.status.toString().charAt(0) !== '2') {
+          throw new Error('[Madoop] cannot communicate with server.');
+        }
+        resolve(req.responseText);
       }
-      if (typeof callback !== 'undefined') { callback(req.responseText); }
-    }
-    req.open('GET', url, true); // true: ensure async request
-    req.send();
-  };
-
-  const ajaxGetScript = (
-    url: string,
-    callback: Function
-  ): void => {
-    ajaxGet(url, data => {
-      const script = document.createElement('script');
-      script.text = data;
-      document.head.appendChild(script).parentNode.removeChild(script);
-      if (typeof callback !== 'undefined') { callback(); }
+      req.open('GET', url, true); // true: ensure async request
+      req.send();
     });
-  };
+  }
 
-  const ajaxPost = (
-    url: string,
-    data: any,
-    callback: (responseText: string) => any
-  ): void => {
-    const req = new XMLHttpRequest();
-    req.onreadystatechange = function(): void {
-      if (req.readyState !== 4) { return; }
-      if (req.status !== 200) {
-        throw new Error('[Madoop] cannot communicate with server.');
+  async function ajaxGetScript(url: string): Promise<void> {
+    const response = await ajaxGet(url);
+    const script = document.createElement('script');
+    script.text = response;
+    document.head.appendChild(script).parentNode.removeChild(script);
+  }
+
+  async function ajaxPost(url: string, data: any): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      const req = new XMLHttpRequest();
+      req.onreadystatechange = function(): void {
+        if (req.readyState !== 4) { return; }
+        if (req.status.toString().charAt(0) !== '2') {
+          throw new Error('[Madoop] cannot communicate with server.');
+        }
+        resolve(req.responseText);
       }
-      if (typeof callback !== 'undefined') { callback(req.responseText); }
-    }
-    req.open('POST', url, true);
-    req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
-    req.send(data);
-  };
+      req.open('POST', url, true);
+      req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
+      req.send();
+    });
+  }
 
-  const ajaxPostJson = (
-    url: string,
-    jsonData: Object,
-    callback: Function
-  ): void => {
+  async function ajaxPostJson(url: string, jsonData: Object): Promise<string> {
     let data = '';
     Object.keys(jsonData).forEach(function (key) {
       const val = this[key]; // `this` === `jsonData`
       data += `${key}=${val}&`;
     }, jsonData);
-    ajaxPost(url, data, function () {
-      if (typeof callback !== 'undefined') { callback(); }
-    });
-  };
+    const response = await ajaxPost(url, data);
+    return response;
+  }
 
   const printDebugInfo = (info: any) => {
     if (typeof MADOOP_MODE_DEBUG !== 'undefined') {
