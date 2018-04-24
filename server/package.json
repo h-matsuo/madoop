@@ -10,7 +10,8 @@
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.4",
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "log4js": "^2.5.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.3",
