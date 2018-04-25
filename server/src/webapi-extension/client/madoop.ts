@@ -1,7 +1,8 @@
 declare var MADOOP_MODE_DEBUG: any;
-((): void => {
 
-  const ROOT = '//localhost:3000/madoop';
+// ((): void => {
+
+  const ROOT = 'http://localhost:3000/madoop';
 
   const ajaxGet = async (url: string): Promise<string> => {
     return new Promise<string>((resolve, reject) => {
@@ -14,6 +15,8 @@ declare var MADOOP_MODE_DEBUG: any;
         resolve(req.responseText);
       }
       req.open('GET', url, true); // true: ensure async request
+      req.setRequestHeader('Pragma', 'no-cache'); // do not use cache
+      req.setRequestHeader('Cache-Control', 'no-cache'); // do not use cache
       req.send();
     });
   };
@@ -60,13 +63,33 @@ declare var MADOOP_MODE_DEBUG: any;
 
   const main = async (): Promise<void> => {
 
-    const todo = await ajaxGet(`${ROOT}/tasks/todo`);
-    const taskInfo = JSON.parse(todo);
-    if (taskInfo.task === null) { return; }
-    await ajaxGetScript(`${ROOT}${taskInfo.task}`);
-    const inputData = await ajaxGet(`${ROOT}${taskInfo.data}`);
+    let debug = 1;
+
+    while (true) {
+      const next = await ajaxGet(`${ROOT}/tasks/next`);
+      const taskInfo: {
+        taskId: string,
+        inputData: any,
+        funcString: string
+      } = JSON.parse(next);
+      if (taskInfo.taskId === null) { break; }
+      const func = new Function('inputData', 'emitFunc', `function ${taskInfo.funcString} map(inputData, emitFunc);`);
+      const result = [];
+      func(taskInfo.inputData, (key, value) => {
+        const element = {
+          'key': key,
+          'value': value
+        };
+        result.push(element);
+      });
+
+      console.log('****************************************\n'+`[ATTEMPT ${debug++}]\n`+result)
+    }
+    // await ajaxGetScript(`${ROOT}${taskInfo.task}`);
+    // const inputData = await ajaxGet(`${ROOT}${taskInfo.data}`);
+
 
   };
   main();
 
-})();
+// })();

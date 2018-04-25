@@ -6,6 +6,8 @@ import * as log4js from 'log4js';
 // import DataBase from '../../lib/DataBase';
 import Job from '../../lib/Job';
 
+declare const ajaxPostJson: (url: string, jsonData: Object) => Promise<string>;
+
 const app = express();
 const router = express.Router();
 // const db = new DataBase();
@@ -26,6 +28,7 @@ import * as fs from 'fs';
 import InputData from '../../lib/InputData';
 import MyMapper from '../../rain/MyMapper';
 import MyReducer from '../../rain/MyReducer';
+import MadoopError from '../../lib/MadoopError';
 class MyInputData extends InputData {
   constructor() {
     super();
@@ -61,12 +64,22 @@ router.get('/tasks/next', (req, res): void => {
   printInfo('[GET] /tasks/next');
   let taskInfo = {
     taskId: <string> null,
-    inputData: <any> null
+    inputData: <any> null,
+    funcString: <string> null
   };
   const task = job.getNextTask();
+  if (!task) { res.send(taskInfo); }
+
   taskInfo.taskId = task.getTaskId();
-  if (!task) { res.send(null); }
-  res.send(task.);
+  taskInfo.inputData = task.getTaskInputData();
+  if (taskInfo.taskId === 'map') {
+    taskInfo.funcString = job.getMapper().map.toString();
+  } else if (taskInfo.taskId === 'reduce') {
+    taskInfo.funcString = job.getReducer().reduce.toString();
+  } else {
+    throw new MadoopError(`unknown task id: ${taskInfo.taskId}`);
+  }
+  res.send(taskInfo);
 });
 
 
