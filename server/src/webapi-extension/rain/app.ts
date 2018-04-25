@@ -5,6 +5,7 @@ import * as log4js from 'log4js';
 
 // import DataBase from '../../lib/DataBase';
 import Job from '../../lib/Job';
+import Task from '../../lib/Task';
 
 declare const ajaxPostJson: (url: string, jsonData: Object) => Promise<string>;
 
@@ -56,12 +57,12 @@ job.setReducer(reducer);
 
 
 router.get('/tasks', (req, res): void => {
-  printInfo('[GET] /tasks');
+  printInfo(`[GET] /tasks - from ${req.hostname} (${req.ip})`);
   res.sendStatus(500);
 });
 
 router.get('/tasks/next', (req, res): void => {
-  printInfo('[GET] /tasks/next');
+  printInfo(`[GET] /tasks/next - from ${req.hostname} (${req.ip})`);
   let taskInfo = {
     taskId: <string> null,
     inputData: <any> null,
@@ -82,12 +83,22 @@ router.get('/tasks/next', (req, res): void => {
   res.send(taskInfo);
 });
 
+router.post('/tasks/result', (req, res): void => {
+  printInfo(`[POST] /tasks/result - from ${req.hostname} (${req.ip})`);
+  const task = new Task();
+  task.setTaskId(req.body.taskId);
+  task.setResult(JSON.parse(req.body.result));
+  job.completeTask(task);
+  res.sendStatus(201);
+});
+
 
 // Settings for CORS: Cross-Origin Resource Sharing
 app.use(cors());
 
 // Settings for parsing JSON as request body
 app.use(bodyParser.urlencoded({
+  limit: '100mb', // to avoid `PayloadTooLargeError`
   extended: true
 }));
 app.use(bodyParser.json());

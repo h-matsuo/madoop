@@ -40,7 +40,7 @@ declare var MADOOP_MODE_DEBUG: any;
       }
       req.open('POST', url, true);
       req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
-      req.send();
+      req.send(data);
     });
   };
 
@@ -60,11 +60,16 @@ declare var MADOOP_MODE_DEBUG: any;
     }
   };
 
+  const sleep = async (msec: number = 1000) => {
+    return new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        resolve();
+      }, msec);
+    });
+  };
+
 
   const main = async (): Promise<void> => {
-
-    let debug = 1;
-
     while (true) {
       const next = await ajaxGet(`${ROOT}/tasks/next`);
       const taskInfo: {
@@ -72,8 +77,17 @@ declare var MADOOP_MODE_DEBUG: any;
         inputData: any,
         funcString: string
       } = JSON.parse(next);
-      if (taskInfo.taskId === null) { break; }
-      const func = new Function('inputData', 'emitFunc', `function ${taskInfo.funcString} map(inputData, emitFunc);`);
+      if (taskInfo.taskId === null) {
+        await sleep(1000);
+        continue;
+      }
+      let execFuncString = '';
+      if (taskInfo.taskId === 'map') {
+        execFuncString = 'map(inputData, emitFunc);';
+      } else {
+        execFuncString = 'reduce(inputData, emitFunc);';
+      }
+      const func = new Function('inputData', 'emitFunc', `function ${taskInfo.funcString} ${execFuncString}`);
       const result = [];
       func(taskInfo.inputData, (key, value) => {
         const element = {
@@ -83,10 +97,16 @@ declare var MADOOP_MODE_DEBUG: any;
         result.push(element);
       });
 
-      console.log('****************************************\n'+`[ATTEMPT ${debug++}]\n`+result)
+      console.log(taskInfo.taskId);
+      console.log(result);
+
+      const jsonData = {
+        taskId: taskInfo.taskId,
+        result: JSON.stringify(result)
+      };
+      await ajaxPostJson(`${ROOT}/tasks/result`, jsonData);
+
     }
-    // await ajaxGetScript(`${ROOT}${taskInfo.task}`);
-    // const inputData = await ajaxGet(`${ROOT}${taskInfo.data}`);
 
 
   };
