@@ -19,7 +19,7 @@ const DOMAIN = process.env.MADOOP_DOMAIN || 'localhost';
 const PORT   = process.env.MADOOP_PORT   || 3000;
 const ROOT   = process.env.MADOOP_ROOT   || '/madoop';
 
-const printInfo = (msg: any): void => {
+const printLog = (msg: string): void => {
   logger.info(msg);
 }
 
@@ -69,12 +69,12 @@ job.setReducer(reducer);
 
 
 router.get('/tasks', (req, res): void => {
-  printInfo(`[GET] /tasks - from ${req.hostname} (${req.ip})`);
+  printLog(`[GET] /tasks - from ${req.hostname} (${req.ip})`);
   res.sendStatus(500);
 });
 
 router.get('/tasks/next', (req, res): void => {
-  printInfo(`[GET] /tasks/next - from ${req.hostname} (${req.ip})`);
+  printLog(`[GET] /tasks/next - from ${req.hostname} (${req.ip})`);
   let taskInfo = {
     taskId: <string> null,
     inputData: <any> null,
@@ -98,7 +98,7 @@ router.get('/tasks/next', (req, res): void => {
 });
 
 router.post('/tasks/result', (req, res): void => {
-  printInfo(`[POST] /tasks/result - from ${req.hostname} (${req.ip})`);
+  printLog(`[POST] /tasks/result - from ${req.hostname} (${req.ip})`);
   const task = new Task();
   task.setTaskId(req.body.taskId);
   task.setResult(JSON.parse(req.body.result));
@@ -120,4 +120,4 @@ app.use(bodyParser.json());
 app.use(ROOT, router);
 app.use(ROOT, express.static('public'));
 app.listen(PORT);
-printInfo(`listen on port ${PORT}`);
+printLog(`listen on port ${PORT}`);

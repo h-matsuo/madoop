@@ -1,19 +1,30 @@
 declare var MADOOP_MODE_DEBUG: any;
+declare var MADOOP_SERVER_URL: any;
 
-// ((): void => {
+((): void => {
 
-  const ROOT = 'http://localhost:3000/madoop';
+  const ROOT =
+    typeof MADOOP_SERVER_URL === 'undefined' ?
+    'http://localhost:3000/madoop' :
+    `${MADOOP_SERVER_URL}`;
+
+  const printLog = (msg: string): void => {
+    if (typeof MADOOP_MODE_DEBUG !== 'undefined') {
+      console.log(`[${new Date().toISOString()}] [INFO] - ${msg}`);
+    }
+  };
 
   const ajaxGet = async (url: string): Promise<string> => {
     return new Promise<string>((resolve, reject) => {
       const req = new XMLHttpRequest();
-      req.onreadystatechange = function(): void {
+      req.onreadystatechange = (): void => {
         if (req.readyState !== 4) { return; }
         if (req.status.toString().charAt(0) !== '2') {
           throw new Error('[Madoop] cannot communicate with server.');
         }
+        printLog(`[GET] ${url}`);
         resolve(req.responseText);
-      }
+      };
       req.open('GET', url, true); // true: ensure async request
       req.setRequestHeader('Pragma', 'no-cache'); // do not use cache
       req.setRequestHeader('Cache-Control', 'no-cache'); // do not use cache
@@ -31,13 +42,14 @@ declare var MADOOP_MODE_DEBUG: any;
   const ajaxPost = async (url: string, data: any): Promise<string> => {
     return new Promise<string>((resolve, reject) => {
       const req = new XMLHttpRequest();
-      req.onreadystatechange = function(): void {
+      req.onreadystatechange = (): void => {
         if (req.readyState !== 4) { return; }
         if (req.status.toString().charAt(0) !== '2') {
           throw new Error('[Madoop] cannot communicate with server.');
         }
+        printLog(`[POST] ${url}`);
         resolve(req.responseText);
-      }
+      };
       req.open('POST', url, true);
       req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
       req.send(data);
@@ -52,12 +64,6 @@ declare var MADOOP_MODE_DEBUG: any;
     }, jsonData);
     const response = await ajaxPost(url, data);
     return response;
-  };
-
-  const printDebugInfo = (info: any) => {
-    if (typeof MADOOP_MODE_DEBUG !== 'undefined') {
-      console.log(info);
-    }
   };
 
   const sleep = async (msec: number = 1000) => {
@@ -108,20 +114,13 @@ declare var MADOOP_MODE_DEBUG: any;
         };
         result.push(element);
       });
-
-      console.log(taskInfo.taskId);
-      console.log(result);
-
       const jsonData = {
         taskId: taskInfo.taskId,
         result: JSON.stringify(result)
       };
       await ajaxPostJson(`${ROOT}/tasks/result`, jsonData);
-
     }
-
-
   };
   main();
 
-// })();
+})();
