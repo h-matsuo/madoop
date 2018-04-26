@@ -68,6 +68,14 @@ declare var MADOOP_MODE_DEBUG: any;
     });
   };
 
+  const convertObjectToMap = (obj: { key: any, values: any[] }[]): Map<any, any[]> => {
+    const result = new Map<any, any[]>();
+    obj.forEach(element => {
+      result.set(element.key, element.values);
+    });
+    return result;
+  };
+
 
   const main = async (): Promise<void> => {
     while (true) {
@@ -84,8 +92,12 @@ declare var MADOOP_MODE_DEBUG: any;
       let execFuncString = '';
       if (taskInfo.taskId === 'map') {
         execFuncString = 'map(inputData, emitFunc);';
-      } else {
+      } else if (taskInfo.taskId === 'reduce') {
         execFuncString = 'reduce(inputData, emitFunc);';
+        const inputDataObject = JSON.parse(taskInfo.inputData);
+        taskInfo.inputData = convertObjectToMap(inputDataObject);
+      } else {
+        throw new Error(`[Madoop] invalid task id provided: ${taskInfo.taskId}`);
       }
       const func = new Function('inputData', 'emitFunc', `function ${taskInfo.funcString} ${execFuncString}`);
       const result = [];

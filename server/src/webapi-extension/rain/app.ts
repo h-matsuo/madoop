@@ -23,6 +23,18 @@ const printInfo = (msg: any): void => {
   logger.info(msg);
 }
 
+const convertMapToObject = (map: Map<any, any[]>): { key: any, values: any[] }[] => {
+  const result: { key: any, values: any[] }[] = [];
+  map.forEach((values, key) => {
+    const element = {
+      key: key,
+      values: values
+    };
+    result.push(element);
+  });
+  return result;
+};
+
 
 ///// Job Settings /////////////////////////////////////////////////////////////
 import * as fs from 'fs';
@@ -69,7 +81,7 @@ router.get('/tasks/next', (req, res): void => {
     funcString: <string> null
   };
   const task = job.getNextTask();
-  if (!task) { res.send(taskInfo); }
+  if (!task) { res.send(taskInfo); return; }
 
   taskInfo.taskId = task.getTaskId();
   taskInfo.inputData = task.getTaskInputData();
@@ -77,6 +89,8 @@ router.get('/tasks/next', (req, res): void => {
     taskInfo.funcString = job.getMapper().map.toString();
   } else if (taskInfo.taskId === 'reduce') {
     taskInfo.funcString = job.getReducer().reduce.toString();
+    const inputDataObject = convertMapToObject(taskInfo.inputData);
+    taskInfo.inputData = JSON.stringify(inputDataObject);
   } else {
     throw new MadoopError(`unknown task id: ${taskInfo.taskId}`);
   }
