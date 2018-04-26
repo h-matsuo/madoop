@@ -33,3 +33,4 @@ job.setReducer(reducer);
 
 const server = new Server(job);
 server.run();
+console.log(server.getResult());

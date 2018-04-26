@@ -16,6 +16,7 @@ class Server {
   private logger: log4js.Logger;
 
   private job: Job;
+  private isCompleted: boolean;
 
   private DOMAIN: string = process.env.MADOOP_DOMAIN || 'localhost';
   private PORT: string   = process.env.MADOOP_PORT   || '3000';
@@ -29,6 +30,7 @@ class Server {
     if (job) {
       this.job = job;
     }
+    this.isCompleted = false;
   }
 
   private printLog(msg: string): void {
@@ -91,7 +93,6 @@ class Server {
       res.sendStatus(201);
     });
 
-
     // Settings for CORS: Cross-Origin Resource Sharing
     this.app.use(cors());
 
@@ -107,6 +108,13 @@ class Server {
     this.app.listen(this.PORT);
     this.printLog(`listen on port ${this.PORT}`);
 
+  }
+
+  getResult(): any {
+    if (!this.isCompleted) {
+      throw new MadoopError('job has not been completed yet.');
+    }
+    return null; // TODO
   }
 
 }
