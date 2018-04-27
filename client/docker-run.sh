@@ -60,7 +60,6 @@ Commands:
   exit
 fi
 
-
 PAGE_DIST_CONTAINER_NAME="madoop-page-dist"
 LIB_DIST_CONTAINER_NAME="madoop-lib-dist"
 
