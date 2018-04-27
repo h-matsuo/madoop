@@ -9,7 +9,7 @@ const rename     = require('gulp-rename');
 gulp.task('build', () => {
   const project = ts.createProject('./tsconfig.json');
   return gulp.src([
-      './src/**/*.ts'
+      './client/src/**/*.ts'
     ])
     .pipe(plumber({
       errorHandler: notify.onError('Error: <%= error.message %>')
@@ -19,17 +19,17 @@ gulp.task('build', () => {
     .pipe(sourcemaps.write('./', {
       includeContent: false
     }))
-    .pipe(gulp.dest('./build/'));
+    .pipe(gulp.dest('./client/dist/'));
 });
 
 gulp.task('build:watch', ['build'], () => {
-  return gulp.watch('./src/**/*.ts', ['build']);
+  return gulp.watch('./client/src/**/*.ts', ['build']);
 });
 
 gulp.task('minify', () => {
   return gulp.src([
-    './build/**/*.js',
-    '!./build/**/*.min.js'
+    './client/dist/**/*.js',
+    '!./client/dist/**/*.min.js'
   ])
   .pipe(plumber({
     errorHandler: notify.onError('Error: <%= error.message %>')
@@ -39,5 +39,5 @@ gulp.task('minify', () => {
     console.error(e);
   })
   .pipe(rename({extname: '.min.js'}))
-  .pipe(gulp.dest('./build/'));
+  .pipe(gulp.dest('./client/dist/'));
 });
