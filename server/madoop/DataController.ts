@@ -1,7 +1,6 @@
 import AbstractInputData from './AbstractInputData';
 import MapperResult from './MapperResult';
 import ReducerResult from './ReducerResult';
-import Reducer from './Reducer';
 
 export default
 class DataController {
