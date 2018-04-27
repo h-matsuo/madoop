@@ -10,7 +10,7 @@ import Task from '../Task';
 import MadoopError from '../MadoopError';
 
 export default
-class Server {
+class WebServer {
 
   private app: express.Express;
   private router: express.Router;
