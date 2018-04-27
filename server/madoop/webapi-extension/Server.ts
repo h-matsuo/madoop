@@ -5,9 +5,9 @@ import * as http from 'http';
 import * as log4js from 'log4js';
 
 // import DataBase from '../lib/DataBase';
-import Job from '../lib/Job';
-import Task from '../lib/Task';
-import MadoopError from '../lib/MadoopError';
+import Job from '../Job';
+import Task from '../Task';
+import MadoopError from '../MadoopError';
 
 export default
 class Server {

@@ -1,13 +1,13 @@
 import * as fs from 'fs';
 
-import InputData from '../lib/InputData';
+import AbstractInputData from '../../madoop/AbstractInputData';
 
 export default
-class MyInputData extends InputData {
+class MyInputData extends AbstractInputData {
 
   constructor() {
     super();
-    const rawData = fs.readFileSync('../../../data/data-all.csv', 'utf8');
+    const rawData = fs.readFileSync('./data/data-all.csv', 'utf8');
     const data = rawData.split('\n');
     data.shift(); // Remove first line
     // this.addInputData(data);

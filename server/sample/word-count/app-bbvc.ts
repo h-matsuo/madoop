@@ -1,10 +1,8 @@
-import * as fs from 'fs';
-
-import Job from '../../lib/Job';
-import Server from '../Server';
-import MyInputData from '../../word-count/MyInputData';
-import MyMapper from '../../word-count/MyMapper';
-import MyReducer from '../../word-count/MyReducer';
+import Job from '../../madoop/Job';
+import Server from '../../madoop/webapi-extension/Server';
+import MyInputData from './MyInputData';
+import MyMapper from './MyMapper';
+import MyReducer from './MyReducer';
 
 const job = new Job('rain');
 const inputData = new MyInputData();

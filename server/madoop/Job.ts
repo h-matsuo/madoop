@@ -1,5 +1,5 @@
 import DataController from './DataController';
-import InputData from './InputData';
+import AbstractInputData from './AbstractInputData';
 import AbstractMapper from './AbstractMapper';
 import AbstractReducer from './AbstractReducer';
 import Task from './Task';
@@ -39,11 +39,11 @@ class Job {
     this.reducer = reducer;
   }
 
-  getInputData(): InputData {
+  getInputData(): AbstractInputData {
     return this.dataController.getInputData();
   }
 
-  setInputData(inputData: InputData) {
+  setInputData(inputData: AbstractInputData) {
     this.dataController.setInputData(inputData);
   }
 

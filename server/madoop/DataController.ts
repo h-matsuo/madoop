@@ -1,4 +1,4 @@
-import InputData from './InputData';
+import AbstractInputData from './AbstractInputData';
 import MapperResult from './MapperResult';
 import ReducerResult from './ReducerResult';
 import Reducer from './Reducer';
@@ -6,7 +6,7 @@ import Reducer from './Reducer';
 export default
 class DataController {
 
-  private inputData: InputData;
+  private inputData: AbstractInputData;
   private mapperResult: MapperResult;
   private reducerResult: ReducerResult;
 
@@ -14,7 +14,7 @@ class DataController {
   private reduceInputData: Map<any, any[]>[];
   private reduceCompleted: boolean[];
 
-  constructor(inputData: InputData = null) {
+  constructor(inputData: AbstractInputData = null) {
     if (inputData) {
       this.setInputData(inputData);
     }
@@ -22,11 +22,11 @@ class DataController {
     this.reducerResult = new ReducerResult();
   }
 
-  getInputData(): InputData {
+  getInputData(): AbstractInputData {
     return this.inputData;
   }
 
-  setInputData(inputData: InputData): void {
+  setInputData(inputData: AbstractInputData): void {
     this.inputData = inputData;
     const dataLength = inputData.getInputDataList().length;
     this.mapCompleted = (new Array(dataLength)).fill(false);

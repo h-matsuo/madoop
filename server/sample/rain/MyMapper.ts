@@ -1,4 +1,4 @@
-import AbstractMapper from '../lib/AbstractMapper';
+import AbstractMapper from '../../madoop/AbstractMapper';
 
 export default
 class MyMapper extends AbstractMapper {

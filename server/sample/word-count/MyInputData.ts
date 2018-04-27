@@ -1,7 +1,7 @@
-import InputData from '../lib/InputData';
+import AbstractInputData from '../../madoop/AbstractInputData';
 
 export default
-class MyInputData extends InputData {
+class MyInputData extends AbstractInputData {
 
   constructor() {
     super();

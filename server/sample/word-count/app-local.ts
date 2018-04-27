@@ -1,4 +1,4 @@
-import Job from '../lib/Job';
+import Job from '../../madoop/Job';
 import MyInputData from './MyInputData';
 import MyMapper from './MyMapper';
 import MyReducer from './MyReducer';

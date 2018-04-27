@@ -1,7 +1,7 @@
 import MadoopError from './MadoopError';
 
 export default
-abstract class InputData {
+abstract class AbstractInputData {
 
   protected dataList: any[];
 
