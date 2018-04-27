@@ -1,0 +1,25 @@
+{
+  "name": "Madoop",
+  "version": "1.0.0",
+  "author": "Hiroyuki Matsuo",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "log4js": "^2.5.3",
+    "ts-node": "^6.0.1",
+    "typescript": "^2.8.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.3",
+    "@types/express": "^4.11.1",
+    "@types/node": "^9.6.7",
+    "gulp": "^3.9.1",
+    "gulp-notify": "^3.2.0",
+    "gulp-plumber": "^1.2.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-typescript": "^4.0.2",
+    "gulp-uglifyes": "^0.1.3"
+  }
+}

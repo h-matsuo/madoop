@@ -1,6 +1,6 @@
 (function () {
 
-  var ROUTE = '//localhost:3000/mbbvc';
+  var ROOT = '//localhost:3000/madoop';
 
   var ajaxGet = function (url, callback) {
     var req = new XMLHttpRequest();
@@ -45,21 +45,25 @@
   };
 
   var printDebugInfoToConsole = function (info) {
-    if (typeof MBBVC_MODE_DEBUG !== 'undefined') {
+    if (typeof MADOOP_MODE_DEBUG !== 'undefined') {
       console.log(info);
     }
   };
 
 
-  ajaxGet(`${ROUTE}/tasks/todo`, function (data) {
+  ajaxGet(`${ROOT}/tasks/todo`, function (data) {
     var taskInfo = JSON.parse(data);
     if (taskInfo.task === null) { return; }
-    ajaxGetScript(`${ROUTE}${taskInfo.task}`, function () {
-      ajaxGet(`${ROUTE}${taskInfo.data}`, function (data) {
-        var result = map(data);
-        var data = { result: result };
-        ajaxPostJson(`${ROUTE}${taskInfo.data}`, data, function () {
-          printDebugInfoToConsole(result);
+    ajaxGetScript(`${ROOT}${taskInfo.task}`, function () {
+      ajaxGet(`${ROOT}${taskInfo.data}`, function (data) {
+        fetchMap().then(() => {
+          execMap(data, (key, value) => {
+            let postData = {};
+            postData[key] = value;
+            ajaxPostJson(`${ROOT}${taskInfo.data}`, postData, function () {
+              printDebugInfoToConsole(postData);
+            });
+          });
         });
       });
     });

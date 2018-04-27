@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Task Registration Page</title>
+  <title>Task Registration Page (JavaScript)</title>
   <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" rel="stylesheet"> -->
   <style>
     @font-face {
@@ -20,7 +20,7 @@
     }
     textarea {
       margin-left: 1em;
-      min-height: 190px;
+      min-height: 500px;
       resize: vertical;
       width: calc(100% - 1em);
     }
@@ -28,27 +28,39 @@
 </head>
 <body>
 
-  <h1>Task Registration Page</h1>
+  <h1>Task Registration Page (JavaScript)</h1>
 
   <p>You can register your tasks to MBBVC: Matsuo BBVC platform.</p>
 
-  <form action="/mbbvc/tasks/register" method="post">
+  <form action="/madoop/tasks/register" method="post">
+    <fieldset>
+      <legend>Programming language</legend>
+      <input type="radio" name="language" value="js" checked="checked"> JavaScript
+    </fieldset>
     <fieldset>
       <legend>Map function to be executed on client browsers</legend>
       <code>
-        function map(data) { <br>
-        &nbsp;&nbsp;var result = null; <br>
-<textarea name="map">
-// SAMPLE: word count
-result = {};
-data.split(/\s/).forEach(function (element, index, ar) {
-  if (!result.hasOwnProperty(element)) {
-    result[element] = 0;
+<textarea name="map-src">
+/*
+ * Madoop implementation example: word count: map function
+ */
+function map( data /* :string   */ ,
+              emit /* :function */ ) {
+  // Initialize result
+  let result = {};
+  // Count the number of occurrences of each word
+  data.split(/\s/).forEach(element => {
+    if (!result.hasOwnProperty(element)) {
+      result[element] = 0;
+    }
+    result[element]++;
+  });
+  // Emit key-value pairs
+  for (const key in result) {
+    emit(key, result[key]);
   }
-  result[element]++;
-});</textarea><br>
-      &nbsp;&nbsp;return result; <br>
-      }
+}
+</textarea>
       </code>
     </fieldset>
     <fieldset>
