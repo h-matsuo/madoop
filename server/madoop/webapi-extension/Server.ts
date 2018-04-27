@@ -18,10 +18,8 @@ class Server {
   private httpServer: http.Server;
 
   private job: Job;
-
-  private DOMAIN: string = process.env.MADOOP_DOMAIN || 'localhost';
-  private PORT: string   = process.env.MADOOP_PORT   || '3000';
-  private ROOT: string   = process.env.MADOOP_ROOT   || '/madoop';
+  private port: string;
+  private root: string;
 
   constructor(job?: Job) {
     this.app = express();
@@ -31,6 +29,8 @@ class Server {
     if (job) {
       this.job = job;
     }
+    this.port = '3000';
+    this.root = '/madoop';
   }
 
   private printLog(msg: string): void {
@@ -51,6 +51,14 @@ class Server {
 
   setJob(job: Job): void {
     this.job = job;
+  }
+
+  setPort(port: string): void {
+    this.port = port;
+  }
+
+  setRoot(root: string): void {
+    this.root = root;
   }
 
   run(): http.Server {
@@ -103,10 +111,10 @@ class Server {
     }));
     this.app.use(bodyParser.json());
 
-    this.app.use(this.ROOT, this.router);
-    this.app.use(this.ROOT, express.static('public'));
-    this.httpServer = this.app.listen(this.PORT);
-    this.printLog(`listen on port ${this.PORT}`);
+    this.app.use(this.root, this.router);
+    this.app.use(this.root, express.static('public'));
+    this.httpServer = this.app.listen(this.port);
+    this.printLog(`listen on \`<SERVER>:${this.port}${this.root}\`...`);
 
     return this.httpServer;
 
