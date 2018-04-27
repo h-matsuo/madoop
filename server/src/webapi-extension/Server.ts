@@ -1,6 +1,7 @@
 import * as bodyParser from 'body-parser';
 import * as cors from 'cors'; // Cross-Origin Resource Sharing
 import * as express from 'express';
+import * as http from 'http';
 import * as log4js from 'log4js';
 
 // import DataBase from '../lib/DataBase';
@@ -14,9 +15,9 @@ class Server {
   private app: express.Express;
   private router: express.Router;
   private logger: log4js.Logger;
+  private httpServer: http.Server;
 
   private job: Job;
-  private isCompleted: boolean;
 
   private DOMAIN: string = process.env.MADOOP_DOMAIN || 'localhost';
   private PORT: string   = process.env.MADOOP_PORT   || '3000';
@@ -30,7 +31,6 @@ class Server {
     if (job) {
       this.job = job;
     }
-    this.isCompleted = false;
   }
 
   private printLog(msg: string): void {
@@ -53,7 +53,7 @@ class Server {
     this.job = job;
   }
 
-  run(): void {
+  run(): http.Server {
 
     this.router.get('/tasks', (req, res): void => {
       this.printLog(`[GET] /tasks - from ${req.hostname} (${req.ip})`);
@@ -105,16 +105,15 @@ class Server {
 
     this.app.use(this.ROOT, this.router);
     this.app.use(this.ROOT, express.static('public'));
-    this.app.listen(this.PORT);
+    this.httpServer = this.app.listen(this.PORT);
     this.printLog(`listen on port ${this.PORT}`);
+
+    return this.httpServer;
 
   }
 
   getResult(): any {
-    if (!this.isCompleted) {
-      throw new MadoopError('job has not been completed yet.');
-    }
-    return null; // TODO
+    return this.job.getResult();
   }
 
 }

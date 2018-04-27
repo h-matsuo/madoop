@@ -27,10 +27,13 @@ const job = new Job('rain');
 const inputData = new MyInputData();
 const mapper = new MyMapper();
 const reducer = new MyReducer();
+const server = new Server();
 job.setInputData(inputData);
 job.setMapper(mapper);
 job.setReducer(reducer);
-
-const server = new Server(job);
+job.setCallbackWhenCompleted(result => {
+  console.log(result);
+  process.exit(0);
+});
+server.setJob(job);
 server.run();
-console.log(server.getResult());

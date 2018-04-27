@@ -84,6 +84,23 @@ class DataController {
     });
   }
 
+  hasNextReducerInputData(): boolean {
+    if (this.hasNextMapperInputData()) {
+      return false;
+    }
+    let id = -1;
+    for (let i = 0; i < this.reduceCompleted.length; ++i) {
+      if (!this.reduceCompleted[i]) {
+        id = i;
+        break;
+      }
+    }
+    if (id >= 0) {
+      return true;
+    }
+    return false;
+  }
+
   getNextReducerInputData(): Map<any, any[]> | null {
     let id = -1;
     for (let i = 0; i < this.reduceCompleted.length; ++i) {
