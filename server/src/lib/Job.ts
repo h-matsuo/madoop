@@ -11,10 +11,12 @@ class Job {
   private jobId: string;
   private mapper: AbstractMapper;
   private reducer: AbstractReducer;
+  private callbackWhenCompleted: (result?: any) => void;
 
   constructor(jobId: string) {
     this.jobId = jobId;
     this.dataController = new DataController();
+    this.callbackWhenCompleted = () => {}; // default: do nothing
   }
 
   getJobId(): string {
@@ -98,11 +100,18 @@ class Job {
       task.result.forEach(element => {
         this.dataController.addReducerResultPair(element.key, element.value);
       });
+      if (!this.dataController.hasNextReducerInputData()) {
+        this.callbackWhenCompleted(this.getResult());
+      }
     }
   }
 
   getResult(): any {
     return this.dataController.getReducerResultPairs();
+  }
+
+  setCallbackWhenCompleted(callback: (result?: any) => void): void {
+    this.callbackWhenCompleted = callback;
   }
 
 }
