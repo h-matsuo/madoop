@@ -81,19 +81,19 @@ declare var execEmit: any;
     while (true) {
       const next = await ajaxGet(`${ROOT}/tasks/next`);
       const taskInfo: {
-        taskId: string,
+        metaInfo: { jobId: string, phase: string },
         inputData: any,
         funcString: string,
         wasmJs: string,
         wasmBinary: {type: string, data: Array<number>}
       } = JSON.parse(next);
-      if (taskInfo.taskId === null) {
+      if (taskInfo.metaInfo === null) {
         await sleep(1000);
         continue;
       }
       applyScript(taskInfo.wasmJs);
       const result = [];
-      if (taskInfo.taskId === 'map') {
+      if (taskInfo.metaInfo.phase === 'map') {
         await new Promise<void>((resolve, reject) => {
           let module;
           const moduleArgs = {
@@ -113,7 +113,7 @@ declare var execEmit: any;
           };
           module = Module(moduleArgs);
         });
-      } else if (taskInfo.taskId === 'reduce') {
+      } else if (taskInfo.metaInfo.phase === 'reduce') {
         // execFuncString = 'reduce(inputData, emitFunc);';
         const inputDataObject: { key: any, values: any[] }[] = JSON.parse(taskInfo.inputData);
 
@@ -141,10 +141,10 @@ declare var execEmit: any;
 
 
       } else {
-        throw new Error(`[Madoop] invalid task id provided: ${taskInfo.taskId}`);
+        throw new Error(`[Madoop] invalid task id provided: ${taskInfo.metaInfo.phase}`);
       }
       const jsonData = {
-        taskId: taskInfo.taskId,
+        metaInfo: JSON.stringify(taskInfo.metaInfo),
         result: JSON.stringify(result)
       };
       await ajaxPostJson(`${ROOT}/tasks/result`, jsonData);

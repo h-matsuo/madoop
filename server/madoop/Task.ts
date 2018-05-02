@@ -5,8 +5,11 @@ class Task {
 
   private method: Function;
   public result: any;
-  private taskId: string;
   private taskInputData: any;
+  private metaInfo: {
+    jobId: string,
+    phase: string
+  };
 
   getMethod(): Function {
     return this.method;
@@ -16,8 +19,8 @@ class Task {
     return this.result;
   }
 
-  getTaskId(): string {
-    return this.taskId;
+  getMetaInfo(): { jobId: string, phase: string } {
+    return this.metaInfo;
   }
 
   getTaskInputData(): any {
@@ -32,8 +35,8 @@ class Task {
     this.result = result;
   }
 
-  setTaskId(taskId: string): void {
-    this.taskId = taskId;
+  setMetaInfo(metaInfo: { jobId: string, phase: string }): void {
+    this.metaInfo = metaInfo;
   }
 
   setTaskInputData(taskInputData: any): void {

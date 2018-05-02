@@ -86,28 +86,28 @@ declare var MADOOP_SERVER_URL: any;
   const main = async (): Promise<void> => {
     while (true) {
       const next = await ajaxGet(`${ROOT}/tasks/next`);
-      const taskInfo: {
-        taskId: string,
+      const task: {
+        metaInfo: { jobId: string, phase: string },
         inputData: any,
         funcString: string
       } = JSON.parse(next);
-      if (taskInfo.taskId === null) {
+      if (task.metaInfo === null) {
         await sleep(1000);
         continue;
       }
       let execFuncString = '';
-      if (taskInfo.taskId === 'map') {
+      if (task.metaInfo.phase === 'map') {
         execFuncString = 'map(inputData, emitFunc);';
-      } else if (taskInfo.taskId === 'reduce') {
+      } else if (task.metaInfo.phase === 'reduce') {
         execFuncString = 'reduce(inputData, emitFunc);';
-        const inputDataObject = JSON.parse(taskInfo.inputData);
-        taskInfo.inputData = convertObjectToMap(inputDataObject);
+        const inputDataObject = JSON.parse(task.inputData);
+        task.inputData = convertObjectToMap(inputDataObject);
       } else {
-        throw new Error(`[Madoop] invalid task id provided: ${taskInfo.taskId}`);
+        throw new Error(`[Madoop] invalid task phase provided: ${task.metaInfo.phase}`);
       }
-      const func = new Function('inputData', 'emitFunc', `function ${taskInfo.funcString} ${execFuncString}`);
+      const func = new Function('inputData', 'emitFunc', `function ${task.funcString} ${execFuncString}`);
       const result = [];
-      func(taskInfo.inputData, (key, value) => {
+      func(task.inputData, (key, value) => {
         const element = {
           'key': key,
           'value': value
@@ -115,7 +115,7 @@ declare var MADOOP_SERVER_URL: any;
         result.push(element);
       });
       const jsonData = {
-        taskId: taskInfo.taskId,
+        metaInfo: JSON.stringify(task.metaInfo),
         result: JSON.stringify(result)
       };
       await ajaxPostJson(`${ROOT}/tasks/result`, jsonData);

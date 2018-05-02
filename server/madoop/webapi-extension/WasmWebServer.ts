@@ -76,40 +76,40 @@ class WasmWebServer {
 
     this.router.get('/tasks/next', (req, res): void => {
       this.printLog(`[GET] /tasks/next - from ${req.hostname} (${req.ip})`);
-      let taskInfo = {
-        taskId: <string> null,
+      let task = {
+        metaInfo: <{ jobId: string, phase: string }> null,
         inputData: <any> null,
         funcString: <string> null,
         wasmJs: <string> null,
         wasmBinary: <Buffer> null
       };
-      const task = this.job.getNextTask();
-      if (!task) { res.send(taskInfo); return; }
+      const nextTask = this.job.getNextTask();
+      if (!task) { res.send(nextTask); return; }
 
-      taskInfo.taskId = task.getTaskId();
-      taskInfo.inputData = task.getTaskInputData();
-      if (taskInfo.taskId === 'map') {
+      task.metaInfo = nextTask.getMetaInfo();
+      task.inputData = nextTask.getTaskInputData();
+      if (task.metaInfo.phase === 'map') {
         const mapper = <WasmMapper>this.job.getMapper();
-        taskInfo.funcString = mapper.map.toString();
-        taskInfo.wasmJs = mapper.getWasmJs();
-        taskInfo.wasmBinary = mapper.getWasmBinary();
-      } else if (taskInfo.taskId === 'reduce') {
+        task.funcString = mapper.map.toString();
+        task.wasmJs = mapper.getWasmJs();
+        task.wasmBinary = mapper.getWasmBinary();
+      } else if (task.metaInfo.phase === 'reduce') {
         const reducer = <WasmReducer>this.job.getReducer();
-        taskInfo.funcString = reducer.reduce.toString();
-        const inputDataObject = this.convertMapToObject(taskInfo.inputData);
-        taskInfo.inputData = JSON.stringify(inputDataObject);
-        taskInfo.wasmJs = reducer.getWasmJs();
-        taskInfo.wasmBinary = reducer.getWasmBinary();
+        task.funcString = reducer.reduce.toString();
+        const inputDataObject = this.convertMapToObject(task.inputData);
+        task.inputData = JSON.stringify(inputDataObject);
+        task.wasmJs = reducer.getWasmJs();
+        task.wasmBinary = reducer.getWasmBinary();
       } else {
-        throw new MadoopError(`unknown task id: ${taskInfo.taskId}`);
+        throw new MadoopError(`unknown task phase: ${task.metaInfo.phase}`);
       }
-      res.send(taskInfo);
+      res.send(task);
     });
 
     this.router.post('/tasks/result', (req, res): void => {
       this.printLog(`[POST] /tasks/result - from ${req.hostname} (${req.ip})`);
       const task = new Task();
-      task.setTaskId(req.body.taskId);
+      task.setMetaInfo(JSON.parse(req.body.metaInfo));
       task.setResult(JSON.parse(req.body.result));
       this.job.completeTask(task);
       res.sendStatus(201);

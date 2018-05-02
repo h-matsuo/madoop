@@ -70,32 +70,32 @@ class WebServer {
 
     this.router.get('/tasks/next', (req, res): void => {
       this.printLog(`[GET] /tasks/next - from ${req.hostname} (${req.ip})`);
-      let taskInfo = {
-        taskId: <string> null,
+      let task = {
+        metaInfo: <{ jobId: string, phase: string }> null,
         inputData: <any> null,
         funcString: <string> null
       };
-      const task = this.job.getNextTask();
-      if (!task) { res.send(taskInfo); return; }
+      const nextTask = this.job.getNextTask();
+      if (!nextTask) { res.send(task); return; }
 
-      taskInfo.taskId = task.getTaskId();
-      taskInfo.inputData = task.getTaskInputData();
-      if (taskInfo.taskId === 'map') {
-        taskInfo.funcString = this.job.getMapper().map.toString();
-      } else if (taskInfo.taskId === 'reduce') {
-        taskInfo.funcString = this.job.getReducer().reduce.toString();
-        const inputDataObject = this.convertMapToObject(taskInfo.inputData);
-        taskInfo.inputData = JSON.stringify(inputDataObject);
+      task.metaInfo = nextTask.getMetaInfo();
+      task.inputData = nextTask.getTaskInputData();
+      if (task.metaInfo.phase === 'map') {
+        task.funcString = this.job.getMapper().map.toString();
+      } else if (task.metaInfo.phase === 'reduce') {
+        task.funcString = this.job.getReducer().reduce.toString();
+        const inputDataObject = this.convertMapToObject(task.inputData);
+        task.inputData = JSON.stringify(inputDataObject);
       } else {
-        throw new MadoopError(`unknown task id: ${taskInfo.taskId}`);
+        throw new MadoopError(`unknown task phase: ${task.metaInfo.phase}`);
       }
-      res.send(taskInfo);
+      res.send(task);
     });
 
     this.router.post('/tasks/result', (req, res): void => {
       this.printLog(`[POST] /tasks/result - from ${req.hostname} (${req.ip})`);
       const task = new Task();
-      task.setTaskId(req.body.taskId);
+      task.setMetaInfo(JSON.parse(req.body.metaInfo));
       task.setResult(JSON.parse(req.body.result));
       this.job.completeTask(task);
       res.sendStatus(201);
