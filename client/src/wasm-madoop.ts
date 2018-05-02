@@ -70,14 +70,6 @@ declare var execEmit: any;
     });
   };
 
-  const convertObjectToMap = (obj: { key: any, values: any[] }[]): Map<any, any[]> => {
-    const result = new Map<any, any[]>();
-    obj.forEach(element => {
-      result.set(element.key, element.values);
-    });
-    return result;
-  };
-
   const applyScript = (script: string): void => {
     const element = document.createElement('script');
     element.text = script;
@@ -99,37 +91,58 @@ declare var execEmit: any;
         await sleep(1000);
         continue;
       }
-      let execFuncString = '';
+      applyScript(taskInfo.wasmJs);
+      const result = [];
       if (taskInfo.taskId === 'map') {
-        // execFuncString = 'map(inputData, emitFunc);';
+        await new Promise<void>((resolve, reject) => {
+          let module;
+          const moduleArgs = {
+            'wasmBinary': new Uint8Array(taskInfo.wasmBinary.data),
+            'onRuntimeInitialized': () => {
+              const map = module.cwrap('map', null, ['string']);
+              execEmit = (key, value) => { // called by map in C++
+                const element = {
+                  'key': key,
+                  'value': value
+                };
+                result.push(element);
+              };
+              map(taskInfo.inputData); // call above `execEmit` inside
+              resolve();
+            }
+          };
+          module = Module(moduleArgs);
+        });
       } else if (taskInfo.taskId === 'reduce') {
         // execFuncString = 'reduce(inputData, emitFunc);';
-        const inputDataObject = JSON.parse(taskInfo.inputData);
-        taskInfo.inputData = convertObjectToMap(inputDataObject);
+        const inputDataObject: { key: any, values: any[] }[] = JSON.parse(taskInfo.inputData);
+
+        await new Promise<void>((resolve, reject) => {
+          let module;
+          const moduleArgs = {
+            'wasmBinary': new Uint8Array(taskInfo.wasmBinary.data),
+            'onRuntimeInitialized': () => {
+              const reduce = module.cwrap('reduce', null, ['string', 'string']);
+              execEmit = (key, value) => { // called by reduce in C++
+                const element = {
+                  'key': key,
+                  'value': value
+                };
+                result.push(element);
+              };
+              inputDataObject.forEach(element => {
+                reduce(element.key, element.values.toString()); // call above `execEmit` inside
+              });
+              resolve();
+            }
+          };
+          module = Module(moduleArgs);
+        });
+
+
       } else {
         throw new Error(`[Madoop] invalid task id provided: ${taskInfo.taskId}`);
       }
-      applyScript(taskInfo.wasmJs);
-      const result = [];
-      await new Promise<void>((resolve, reject) => {
-        let module;
-        const moduleArgs = {
-          'wasmBinary': new Uint8Array(taskInfo.wasmBinary.data),
-          'onRuntimeInitialized': () => {
-            const map = module.cwrap('map', null, ['string']);
-            execEmit = (key, value) => { // called by map in C++
-              const element = {
-                'key': key,
-                'value': value
-              };
-              result.push(element);
-            };
-            map(taskInfo.inputData); // call above `execEmit` inside
-            resolve();
-          }
-        };
-        module = Module(moduleArgs);
-      });
       const jsonData = {
         taskId: taskInfo.taskId,
         result: JSON.stringify(result)

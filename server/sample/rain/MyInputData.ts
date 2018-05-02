@@ -11,7 +11,7 @@ class MyInputData extends AbstractInputData {
     const data = rawData.split('\n');
     data.shift(); // Remove first line
     const length = data.length;
-    const step = 100;
+    const step = 10000;
     const dataElement: string[][] = [];
     for (let i = 0; i < Math.floor(length / step); ++i) {
       const begin = step * i;

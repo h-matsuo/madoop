@@ -2,20 +2,25 @@ import Job from '../../madoop/Job';
 import WasmWebServer from '../../madoop/webapi-extension/WasmWebServer';
 import MyInputData from './MyInputData';
 import WasmMapper from '../../madoop/WasmMapper';
-import MyReducer from './MyReducer';
+import WasmReducer from '../../madoop/WasmReducer';
 
 import * as fs from 'fs';
 
 const job = new Job('rain');
 const inputData = new MyInputData();
 const mapper = new WasmMapper();
-const reducer = new MyReducer();
+const reducer = new WasmReducer();
 const server = new WasmWebServer();
 
-const wasmJs = fs.readFileSync('./map.js', 'utf8');
-const wasmBinary = fs.readFileSync('./map.wasm');
-mapper.setWasmJs(wasmJs);
-mapper.setWasmBinary(wasmBinary);
+const wasmJsMap = fs.readFileSync('./map.js', 'utf8');
+const wasmBinaryMap = fs.readFileSync('./map.wasm');
+mapper.setWasmJs(wasmJsMap);
+mapper.setWasmBinary(wasmBinaryMap);
+
+const wasmJsReducer = fs.readFileSync('./reduce.js', 'utf8');
+const wasmBinaryReducer = fs.readFileSync('./reduce.wasm');
+reducer.setWasmJs(wasmJsReducer);
+reducer.setWasmBinary(wasmBinaryReducer);
 
 job.setInputData(inputData);
 job.setMapper(mapper);

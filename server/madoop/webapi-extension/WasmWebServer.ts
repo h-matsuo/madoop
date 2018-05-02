@@ -9,6 +9,7 @@ import Job from '../Job';
 import Task from '../Task';
 import MadoopError from '../MadoopError';
 import WasmMapper from '../WasmMapper';
+import WasmReducer from '../WasmReducer';
 
 export default
 class WasmWebServer {
@@ -93,9 +94,12 @@ class WasmWebServer {
         taskInfo.wasmJs = mapper.getWasmJs();
         taskInfo.wasmBinary = mapper.getWasmBinary();
       } else if (taskInfo.taskId === 'reduce') {
-        taskInfo.funcString = this.job.getReducer().reduce.toString();
+        const reducer = <WasmReducer>this.job.getReducer();
+        taskInfo.funcString = reducer.reduce.toString();
         const inputDataObject = this.convertMapToObject(taskInfo.inputData);
         taskInfo.inputData = JSON.stringify(inputDataObject);
+        taskInfo.wasmJs = reducer.getWasmJs();
+        taskInfo.wasmBinary = reducer.getWasmBinary();
       } else {
         throw new MadoopError(`unknown task id: ${taskInfo.taskId}`);
       }

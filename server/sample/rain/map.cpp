@@ -14,7 +14,7 @@ extern "C" { // REQUIRED to prevent C++ name mangling
   {
     const std::string &data_str = std::string(input_data);
     const std::vector<std::string> &lines = split(data_str, '\n');
-    for (auto line: lines) {
+    for (const auto line: lines) {
       if (line == "") { continue; }
       const std::vector<std::string> &elements = split(line, ',');
       const std::string city_name = elements[0];
