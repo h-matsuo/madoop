@@ -4,7 +4,7 @@ export default
 class WasmMapper extends AbstractMapper {
 
   private wasmJs: string;
-  private wasmBinary: Uint8Array;
+  private wasmBinary: Buffer;
 
   map(
     inputData: any,
@@ -17,7 +17,7 @@ class WasmMapper extends AbstractMapper {
     return this.wasmJs;
   }
 
-  getWasmBinary(): Uint8Array {
+  getWasmBinary(): Buffer {
     return this.wasmBinary;
   }
 
@@ -25,7 +25,7 @@ class WasmMapper extends AbstractMapper {
     this.wasmJs = js;
   }
 
-  setWasmBinary(binary: Uint8Array) {
+  setWasmBinary(binary: Buffer) {
     this.wasmBinary = binary;
   }
 

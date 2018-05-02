@@ -93,7 +93,7 @@ declare var execEmit: any;
         inputData: any,
         funcString: string,
         wasmJs: string,
-        wasmBinary: Array<number>
+        wasmBinary: {type: string, data: Array<number>}
       } = JSON.parse(next);
       if (taskInfo.taskId === null) {
         await sleep(1000);
@@ -109,41 +109,32 @@ declare var execEmit: any;
       } else {
         throw new Error(`[Madoop] invalid task id provided: ${taskInfo.taskId}`);
       }
-
       applyScript(taskInfo.wasmJs);
-      // taskInfo.wasmBinary = new Uint8Array(taskInfo.wasmBinary);
-      let module;
-      const moduleArgs = {
-        'wasmBinary': Uint8Array.from(taskInfo.wasmBinary),
-        'onRuntimeInitialized': () => {
-          const map = module.cwrap('map', null, ['string']);
-          execEmit = (key, value) => { // called in map in C++
-            console.log(key, value);
-          };
-          map(taskInfo.inputData);
-        }
+      const result = [];
+      await new Promise<void>((resolve, reject) => {
+        let module;
+        const moduleArgs = {
+          'wasmBinary': new Uint8Array(taskInfo.wasmBinary.data),
+          'onRuntimeInitialized': () => {
+            const map = module.cwrap('map', null, ['string']);
+            execEmit = (key, value) => { // called by map in C++
+              const element = {
+                'key': key,
+                'value': value
+              };
+              result.push(element);
+            };
+            map(taskInfo.inputData); // call above `execEmit` inside
+            resolve();
+          }
+        };
+        module = Module(moduleArgs);
+      });
+      const jsonData = {
+        taskId: taskInfo.taskId,
+        result: JSON.stringify(result)
       };
-      module = Module(moduleArgs);
-
-      break;
-
-      // await sleep(10000);
-
-
-      // const func = new Function('inputData', 'emitFunc', `function ${taskInfo.funcString} ${execFuncString}`);
-      // const result = [];
-      // func(taskInfo.inputData, (key, value) => {
-      //   const element = {
-      //     'key': key,
-      //     'value': value
-      //   };
-      //   result.push(element);
-      // });
-      // const jsonData = {
-      //   taskId: taskInfo.taskId,
-      //   result: JSON.stringify(result)
-      // };
-      // await ajaxPostJson(`${ROOT}/tasks/result`, jsonData);
+      await ajaxPostJson(`${ROOT}/tasks/result`, jsonData);
     }
   };
   main();

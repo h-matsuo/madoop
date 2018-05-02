@@ -13,7 +13,7 @@ const reducer = new MyReducer();
 const server = new WasmWebServer();
 
 const wasmJs = fs.readFileSync('./map.js', 'utf8');
-const wasmBinary = new Uint8Array(fs.readFileSync('./map.wasm'));
+const wasmBinary = fs.readFileSync('./map.wasm');
 mapper.setWasmJs(wasmJs);
 mapper.setWasmBinary(wasmBinary);
 

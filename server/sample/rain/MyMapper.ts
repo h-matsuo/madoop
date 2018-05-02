@@ -4,11 +4,12 @@ export default
 class MyMapper extends AbstractMapper {
 
   map(
-    inputData: string[],
+    inputData: string,
     emitFunc: (key: string, value: number) => void
   ): void {
 
-    inputData.forEach(line => {
+    const lines = inputData.split('\n');
+    lines.forEach(line => {
       if (line === '') { return; }
       const split = line.split(',');
       const cityName = split[0];

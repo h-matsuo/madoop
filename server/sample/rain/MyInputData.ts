@@ -12,12 +12,20 @@ class MyInputData extends AbstractInputData {
     data.shift(); // Remove first line
     const length = data.length;
     const step = 100;
+    const dataElement: string[][] = [];
     for (let i = 0; i < Math.floor(length / step); ++i) {
       const begin = step * i;
       const end = step * (i + 1);
-      this.addInputData(data.slice(begin, end));
+      dataElement.push(data.slice(begin, end));
     }
-    this.addInputData(data.slice(step * Math.floor(length / step)));
+    dataElement.push(data.slice(step * Math.floor(length / step)));
+    for (let i = 0; i < dataElement.length; ++i) {
+      let line = '';
+      for (let j = 0; j < dataElement[i].length; ++j) {
+        line += dataElement[i][j] + '\n';
+      }
+      this.addInputData(line);
+    }
   }
 
 }

@@ -69,6 +69,10 @@ class WasmWebServer {
       res.sendStatus(500);
     });
 
+    this.router.get('/wasm/map', (req, res): void => {
+      res.send((<WasmMapper>this.job.getMapper()).getWasmBinary());
+    });
+
     this.router.get('/tasks/next', (req, res): void => {
       this.printLog(`[GET] /tasks/next - from ${req.hostname} (${req.ip})`);
       let taskInfo = {
@@ -76,7 +80,7 @@ class WasmWebServer {
         inputData: <any> null,
         funcString: <string> null,
         wasmJs: <string> null,
-        wasmBinary: <Array<number>> null
+        wasmBinary: <Buffer> null
       };
       const task = this.job.getNextTask();
       if (!task) { res.send(taskInfo); return; }
@@ -87,7 +91,7 @@ class WasmWebServer {
         const mapper = <WasmMapper>this.job.getMapper();
         taskInfo.funcString = mapper.map.toString();
         taskInfo.wasmJs = mapper.getWasmJs();
-        taskInfo.wasmBinary = Array.from(mapper.getWasmBinary());
+        taskInfo.wasmBinary = mapper.getWasmBinary();
       } else if (taskInfo.taskId === 'reduce') {
         taskInfo.funcString = this.job.getReducer().reduce.toString();
         const inputDataObject = this.convertMapToObject(taskInfo.inputData);
