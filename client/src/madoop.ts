@@ -32,13 +32,6 @@ declare var MADOOP_SERVER_URL: any;
     });
   };
 
-  const ajaxGetScript = async (url: string): Promise<void> => {
-    const response = await ajaxGet(url);
-    const script = document.createElement('script');
-    script.text = response;
-    document.head.appendChild(script).parentNode.removeChild(script);
-  };
-
   const ajaxPost = async (url: string, data: any): Promise<string> => {
     return new Promise<string>((resolve, reject) => {
       const req = new XMLHttpRequest();
