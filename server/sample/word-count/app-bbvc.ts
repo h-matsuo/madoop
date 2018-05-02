@@ -18,4 +18,5 @@ job.setCallbackWhenCompleted(result => {
   process.exit(0);
 });
 server.setJob(job);
+server.setRoot('/madoop/js');
 server.run();
