@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Client Demo Page | Madoop: Matsuo Hadoop</title>
+  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" rel="stylesheet"> -->
+</head>
+<body>
+
+  <h1>Client Demo Page</h1>
+
+  <p>
+    This is a client side demo page for Madoop: Matsuo Hadoop.
+  </p>
+
+  <p>
+    Tasks will be executed during your stay.
+    Check your console to see debug information.
+  </p>
+
+  <main>
+    <p>Main contents here.</p>
+  </main>
+
+  <script>
+    var MADOOP_MODE_DEBUG = true;
+    var MADOOP_SERVER_URL = '//localhost:3000/madoop';
+  </script>
+  <script src="//localhost:5000/wasm-madoop.min.js" async></script>
+</body>
+</html>
