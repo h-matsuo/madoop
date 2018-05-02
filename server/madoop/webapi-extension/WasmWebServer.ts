@@ -70,18 +70,31 @@ class WasmWebServer {
       res.sendStatus(500);
     });
 
-    this.router.get('/wasm/map', (req, res): void => {
-      res.send((<WasmMapper>this.job.getMapper()).getWasmBinary());
+    this.router.get('/wasmData/map', (req, res): void => {
+      this.printLog(`[GET] /wasmData/map - from ${req.hostname} (${req.ip})`);
+      const mapper = <WasmMapper>this.job.getMapper();
+      const data = {
+        wasmJs: mapper.getWasmJs(),
+        wasmBinary: mapper.getWasmBinary()
+      };
+      res.send(data);
+    });
+
+    this.router.get('/wasmData/reduce', (req, res): void => {
+      this.printLog(`[GET] /wasmData/reduce - from ${req.hostname} (${req.ip})`);
+      const reducer = <WasmReducer>this.job.getReducer();
+      const data = {
+        wasmJs: reducer.getWasmJs(),
+        wasmBinary: reducer.getWasmBinary()
+      };
+      res.send(data);
     });
 
     this.router.get('/tasks/next', (req, res): void => {
       this.printLog(`[GET] /tasks/next - from ${req.hostname} (${req.ip})`);
       let task = {
         metaInfo: <{ jobId: string, phase: string }> null,
-        inputData: <any> null,
-        funcString: <string> null,
-        wasmJs: <string> null,
-        wasmBinary: <Buffer> null
+        inputData: <any> null
       };
       const nextTask = this.job.getNextTask();
       if (!task) { res.send(nextTask); return; }
@@ -89,17 +102,9 @@ class WasmWebServer {
       task.metaInfo = nextTask.getMetaInfo();
       task.inputData = nextTask.getTaskInputData();
       if (task.metaInfo.phase === 'map') {
-        const mapper = <WasmMapper>this.job.getMapper();
-        task.funcString = mapper.map.toString();
-        task.wasmJs = mapper.getWasmJs();
-        task.wasmBinary = mapper.getWasmBinary();
       } else if (task.metaInfo.phase === 'reduce') {
-        const reducer = <WasmReducer>this.job.getReducer();
-        task.funcString = reducer.reduce.toString();
         const inputDataObject = this.convertMapToObject(task.inputData);
         task.inputData = JSON.stringify(inputDataObject);
-        task.wasmJs = reducer.getWasmJs();
-        task.wasmBinary = reducer.getWasmBinary();
       } else {
         throw new MadoopError(`unknown task phase: ${task.metaInfo.phase}`);
       }
