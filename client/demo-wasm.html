@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Client Demo Page | Madoop: Matsuo Hadoop</title>
+  <title>Client Demo Page (WebAssembly) | Madoop: Matsuo Hadoop</title>
   <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.min.css" rel="stylesheet"> -->
 </head>
 <body>
 
-  <h1>Client Demo Page</h1>
+  <h1>Task Execution Page (WebAssembly)</h1>
 
   <p>
-    This is a client side demo page for Madoop: Matsuo Hadoop.
+    This page executes task written in <strong>WebAssembly</strong>.
   </p>
 
   <p>
@@ -24,7 +24,7 @@
 
   <script>
     var MADOOP_MODE_DEBUG = true;
-    var MADOOP_SERVER_URL = '//localhost:3000/madoop';
+    var MADOOP_SERVER_URL = '//localhost:3000/madoop/wasm';
   </script>
   <script src="//localhost:5000/wasm-madoop.min.js" async></script>
 </body>

@@ -67,7 +67,7 @@ if $FLAG_UP; then
   docker run -it --rm \
     --name ${PAGE_DIST_CONTAINER_NAME} \
     -p ${PAGE_DIST_PORT}:80 \
-    -v "${SCRIPT_DIR}/index.html:/usr/share/nginx/html/index.html:ro" \
+    -v "${SCRIPT_DIR}/:/usr/share/nginx/html/:ro" \
     -d \
     "${NGINX_IMAGE_NAME}:${NGINX_IMAGE_TAG}"
   docker run -it --rm \
