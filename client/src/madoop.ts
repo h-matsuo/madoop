@@ -82,14 +82,33 @@ declare var MADOOP_SERVER_URL: any;
     return result;
   };
 
+  const execFuncs = new Map<string, (inputData: any, emitFunc: (key, value) => void) => void>();
+  const getExecFunc = async (metaInfo: { jobId: string, phase: string }): Promise<(inputData: any, emitFunc: (key, value) => void) => void> => {
+    const metaInfoString = JSON.stringify(metaInfo);
+    if (execFuncs.has(metaInfoString)) {
+      return execFuncs.get(metaInfoString);
+    }
+    const funcString = await ajaxGet(`${ROOT}/funcString/${metaInfo.phase}`);
+    let execFuncString = '';
+    if (metaInfo.phase === 'map') {
+      execFuncString = 'map(inputData, emitFunc);';
+    } else if (metaInfo.phase === 'reduce') {
+      execFuncString = 'reduce(inputData, emitFunc);';
+    } else {
+      throw new Error(`[Madoop] invalid task phase provided: ${metaInfo.phase}`);
+    }
+    const func = new Function('inputData', 'emitFunc', `function ${funcString} ${execFuncString}`);
+    execFuncs.set(metaInfoString, <any>func);
+    return <any>func;
+  };
+
 
   const main = async (): Promise<void> => {
     while (true) {
       const next = await ajaxGet(`${ROOT}/tasks/next`);
       const task: {
         metaInfo: { jobId: string, phase: string },
-        inputData: any,
-        funcString: string
+        inputData: any
       } = JSON.parse(next);
       if (task.metaInfo === null) {
         await sleep(1000);
@@ -97,15 +116,13 @@ declare var MADOOP_SERVER_URL: any;
       }
       let execFuncString = '';
       if (task.metaInfo.phase === 'map') {
-        execFuncString = 'map(inputData, emitFunc);';
       } else if (task.metaInfo.phase === 'reduce') {
-        execFuncString = 'reduce(inputData, emitFunc);';
         const inputDataObject = JSON.parse(task.inputData);
         task.inputData = convertObjectToMap(inputDataObject);
       } else {
         throw new Error(`[Madoop] invalid task phase provided: ${task.metaInfo.phase}`);
       }
-      const func = new Function('inputData', 'emitFunc', `function ${task.funcString} ${execFuncString}`);
+      const func = await getExecFunc(task.metaInfo);
       const result = [];
       func(task.inputData, (key, value) => {
         const element = {
