@@ -1,14 +1,14 @@
 {
-  "name": "Madoop",
+  "name": "madoop",
   "description": "Matsuo Hadoop -- BBVC (Browser-Based Voluntary Computing) based on MapReduce model with WebAssembly Technology",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "author": "Hiroyuki Matsuo",
   "license": "MIT",
   "main": "index.ts",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git@github.com:kusumotolab/Madoop.git"
+    "url": "git@github.com:kusumotolab/madoop.git"
   },
   "dependencies": {
     "cors": "^2.8.4",
