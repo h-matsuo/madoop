@@ -5,7 +5,9 @@ declare var MADOOP_SERVER_URL: any;
 declare var Module: any;
 
 // Called by map/reduce in C++
-let execEmit: Function = null;
+let execEmit: Function = () => {
+  throw new Error('[Madoop] function `execEmit` not defined.');
+};
 
 ((): void => {
 
@@ -110,24 +112,17 @@ let execEmit: Function = null;
       }
       const func = await getExecFunc(nextTask.metaInfo);
       const result = [];
-      if (nextTask.metaInfo.phase === 'map') {
-        execEmit = (key, value) => { // called by map in C++
-          const element = {
-            'key': key,
-            'value': value
-          };
-          result.push(element);
+      execEmit = (key, value) => { // called by map/reduce in C++
+        const element = {
+          'key': key,
+          'value': value
         };
+        result.push(element);
+      };
+      if (nextTask.metaInfo.phase === 'map') {
         func(nextTask.inputData); // call above `execEmit` inside
       } else if (nextTask.metaInfo.phase === 'reduce') {
         const inputDataObject: { key: any, values: any[] }[] = JSON.parse(nextTask.inputData);
-        execEmit = (key, value) => { // called by reduce in C++
-          const element = {
-            'key': key,
-            'value': value
-          };
-          result.push(element);
-        };
         inputDataObject.forEach(element => {
           func(element.key, element.values.toString()); // call above `execEmit` inside
         });
