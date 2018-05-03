@@ -1,4 +1,4 @@
-import AbstractReducer from '../../madoop/AbstractReducer';
+import {AbstractReducer} from '../../../';
 
 export default
 class MyReducer extends AbstractReducer {

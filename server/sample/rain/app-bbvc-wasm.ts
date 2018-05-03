@@ -1,8 +1,5 @@
-import Job from '../../madoop/Job';
-import WasmWebServer from '../../madoop/webapi-extension/WasmWebServer';
+import {Job, WasmMapper, WasmReducer, WasmWebServer} from '../../../';
 import MyInputData from './MyInputData';
-import WasmMapper from '../../madoop/WasmMapper';
-import WasmReducer from '../../madoop/WasmReducer';
 
 import * as fs from 'fs';
 
