@@ -68,34 +68,41 @@ class WebServer {
       res.sendStatus(500);
     });
 
+    this.router.get('/funcString/map', (req, res): void => {
+      this.printLog(`[GET] /funcString/map - from ${req.hostname} (${req.ip})`);
+      res.send(this.job.getMapper().map.toString());
+    });
+
+    this.router.get('/funcString/reduce', (req, res): void => {
+      this.printLog(`[GET] /funcString/reduce - from ${req.hostname} (${req.ip})`);
+      res.send(this.job.getReducer().reduce.toString());
+    });
+
     this.router.get('/tasks/next', (req, res): void => {
       this.printLog(`[GET] /tasks/next - from ${req.hostname} (${req.ip})`);
-      let taskInfo = {
-        taskId: <string> null,
-        inputData: <any> null,
-        funcString: <string> null
+      let task = {
+        metaInfo: <{ jobId: string, phase: string }> null,
+        inputData: <any> null
       };
-      const task = this.job.getNextTask();
-      if (!task) { res.send(taskInfo); return; }
+      const nextTask = this.job.getNextTask();
+      if (!nextTask) { res.send(task); return; }
 
-      taskInfo.taskId = task.getTaskId();
-      taskInfo.inputData = task.getTaskInputData();
-      if (taskInfo.taskId === 'map') {
-        taskInfo.funcString = this.job.getMapper().map.toString();
-      } else if (taskInfo.taskId === 'reduce') {
-        taskInfo.funcString = this.job.getReducer().reduce.toString();
-        const inputDataObject = this.convertMapToObject(taskInfo.inputData);
-        taskInfo.inputData = JSON.stringify(inputDataObject);
+      task.metaInfo = nextTask.getMetaInfo();
+      task.inputData = nextTask.getTaskInputData();
+      if (task.metaInfo.phase === 'map') {
+      } else if (task.metaInfo.phase === 'reduce') {
+        const inputDataObject = this.convertMapToObject(task.inputData);
+        task.inputData = JSON.stringify(inputDataObject);
       } else {
-        throw new MadoopError(`unknown task id: ${taskInfo.taskId}`);
+        throw new MadoopError(`unknown task phase: ${task.metaInfo.phase}`);
       }
-      res.send(taskInfo);
+      res.send(task);
     });
 
     this.router.post('/tasks/result', (req, res): void => {
       this.printLog(`[POST] /tasks/result - from ${req.hostname} (${req.ip})`);
       const task = new Task();
-      task.setTaskId(req.body.taskId);
+      task.setMetaInfo(JSON.parse(req.body.metaInfo));
       task.setResult(JSON.parse(req.body.result));
       this.job.completeTask(task);
       res.sendStatus(201);
@@ -109,10 +116,12 @@ class WebServer {
       limit: '100mb', // to avoid `PayloadTooLargeError`
       extended: true
     }));
-    this.app.use(bodyParser.json());
+    this.app.use(bodyParser.json({
+      limit: '100mb' // to avoid status 413 (payload too large)
+    }));
 
     this.app.use(this.root, this.router);
-    this.app.use(this.root, express.static('public'));
+    // this.app.use(this.root, express.static('public'));
     this.httpServer = this.app.listen(this.port);
     this.printLog(`listen on \`<SERVER>:${this.port}${this.root}\`...`);
 

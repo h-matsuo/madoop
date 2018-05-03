@@ -51,7 +51,10 @@ class Job {
     let task = new Task();
     const nextMapperInputData = this.dataController.getNextMapperInputData();
     if (nextMapperInputData) {
-      task.setTaskId('map');
+      task.setMetaInfo({
+        jobId: this.jobId,
+        phase: 'map'
+      });
       task.setTaskInputData(nextMapperInputData);
       task.setMethod(() => {
         task.result = [];
@@ -69,7 +72,10 @@ class Job {
     } else {
       const nextReducerInputData = this.dataController.getNextReducerInputData();
       if (nextReducerInputData) {
-        task.setTaskId('reduce');
+        task.setMetaInfo({
+          jobId: this.jobId,
+          phase: 'reduce'
+        });
         task.setTaskInputData(nextReducerInputData);
         task.setMethod(() => {
           task.result = [];
@@ -92,11 +98,11 @@ class Job {
   }
 
   completeTask(task: Task): void {
-    if (task.getTaskId() === 'map') {
+    if (task.getMetaInfo().phase === 'map') {
       task.result.forEach(element => {
         this.dataController.addMapperResultPair(element.key, element.value);
       });
-    } else if (task.getTaskId() === 'reduce') {
+    } else if (task.getMetaInfo().phase === 'reduce') {
       task.result.forEach(element => {
         this.dataController.addReducerResultPair(element.key, element.value);
       });
