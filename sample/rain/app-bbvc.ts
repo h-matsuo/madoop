@@ -1,4 +1,4 @@
-import {Job, WebServer} from '../../../';
+import {Job, WebServer} from '../../';
 import MyInputData from './MyInputData';
 import MyMapper from './MyMapper';
 import MyReducer from './MyReducer';

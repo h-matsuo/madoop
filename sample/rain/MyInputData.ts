@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-import {AbstractInputData} from '../../../';
+import {AbstractInputData} from '../../';
 
 export default
 class MyInputData extends AbstractInputData {

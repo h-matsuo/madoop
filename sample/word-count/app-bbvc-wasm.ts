@@ -1,4 +1,4 @@
-import {Job, WasmMapper, WasmReducer, WasmWebServer} from '../../../';
+import {Job, WasmMapper, WasmReducer, WasmWebServer} from '../../';
 import MyInputData from './MyInputData';
 
 import * as fs from 'fs';

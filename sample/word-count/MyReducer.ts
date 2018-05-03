@@ -1,4 +1,4 @@
-import {AbstractReducer} from '../../../';
+import {AbstractReducer} from '../../';
 
 export default
 class MyReducer extends AbstractReducer {

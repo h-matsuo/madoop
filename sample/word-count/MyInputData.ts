@@ -1,4 +1,4 @@
-import {AbstractInputData} from '../../../';
+import {AbstractInputData} from '../../';
 
 export default
 class MyInputData extends AbstractInputData {

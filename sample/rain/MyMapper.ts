@@ -1,4 +1,4 @@
-import {AbstractMapper} from '../../../';
+import {AbstractMapper} from '../../';
 
 export default
 class MyMapper extends AbstractMapper {
