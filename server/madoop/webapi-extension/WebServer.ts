@@ -116,10 +116,12 @@ class WebServer {
       limit: '100mb', // to avoid `PayloadTooLargeError`
       extended: true
     }));
-    this.app.use(bodyParser.json());
+    this.app.use(bodyParser.json({
+      limit: '100mb' // to avoid status 413 (payload too large)
+    }));
 
     this.app.use(this.root, this.router);
-    this.app.use(this.root, express.static('public'));
+    // this.app.use(this.root, express.static('public'));
     this.httpServer = this.app.listen(this.port);
     this.printLog(`listen on \`<SERVER>:${this.port}${this.root}\`...`);
 

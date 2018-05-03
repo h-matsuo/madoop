@@ -20,49 +20,24 @@ let execEmit: Function = null;
     }
   };
 
-  const ajaxGet = async (url: string): Promise<string> => {
-    return new Promise<string>((resolve, reject) => {
-      const req = new XMLHttpRequest();
-      req.onreadystatechange = (): void => {
-        if (req.readyState !== 4) { return; }
-        if (req.status.toString().charAt(0) !== '2') {
-          throw new Error('[Madoop] cannot communicate with server.');
-        }
-        printLog(`[GET] ${url}`);
-        resolve(req.responseText);
-      };
-      req.open('GET', url, true); // true: ensure async request
-      req.setRequestHeader('Pragma', 'no-cache'); // do not use cache
-      req.setRequestHeader('Cache-Control', 'no-cache'); // do not use cache
-      req.send();
+  const ajaxGet = async (url: string): Promise<Response> => {
+    printLog(`[GET] ${url}`);
+    return fetch(url, {
+      method: 'GET',
+      headers: new Headers({
+        'Pragma': 'no-cache',
+        'Cache-Control': 'no-cache'
+      })
     });
   };
 
-  const ajaxPost = async (url: string, data: any): Promise<string> => {
-    return new Promise<string>((resolve, reject) => {
-      const req = new XMLHttpRequest();
-      req.onreadystatechange = (): void => {
-        if (req.readyState !== 4) { return; }
-        if (req.status.toString().charAt(0) !== '2') {
-          throw new Error('[Madoop] cannot communicate with server.');
-        }
-        printLog(`[POST] ${url}`);
-        resolve(req.responseText);
-      };
-      req.open('POST', url, true);
-      req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
-      req.send(data);
+  const ajaxPostJson = async (url: string, data: Object): Promise<Response> => {
+    printLog(`[POST] ${url}`);
+    return fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: new Headers({'Content-Type': 'application/json'})
     });
-  };
-
-  const ajaxPostJson = async (url: string, jsonData: Object): Promise<string> => {
-    let data = '';
-    Object.keys(jsonData).forEach(function (key) {
-      const val = this[key]; // `this` === `jsonData`
-      data += `${key}=${val}&`;
-    }, jsonData);
-    const response = await ajaxPost(url, data);
-    return response;
   };
 
   const sleep = async (msec: number = 1000) => {
@@ -85,11 +60,10 @@ let execEmit: Function = null;
     if (execFuncs.has(metaInfoString)) {
       return execFuncs.get(metaInfoString);
     }
-    const gotData = await ajaxGet(`${ROOT}/wasmData/${metaInfo.phase}`);
     const wasmData: {
       wasmJs: string,
       wasmBinary: {type: string, data: Array<number>}
-    } = JSON.parse(gotData);
+    } = await ajaxGet(`${ROOT}/wasmData/${metaInfo.phase}`).then(res => res.json());
     applyScript(wasmData.wasmJs);
     let func;
     if (metaInfo.phase === 'map') {
@@ -126,18 +100,17 @@ let execEmit: Function = null;
 
   const main = async (): Promise<void> => {
     while (true) {
-      const next = await ajaxGet(`${ROOT}/tasks/next`);
-      const task: {
+      const nextTask: {
         metaInfo: { jobId: string, phase: string },
         inputData: any
-      } = JSON.parse(next);
-      if (task.metaInfo === null) {
+      } = await ajaxGet(`${ROOT}/tasks/next`).then(res => res.json());
+      if (nextTask.metaInfo === null) {
         await sleep(1000);
         continue;
       }
-      const func = await getExecFunc(task.metaInfo);
+      const func = await getExecFunc(nextTask.metaInfo);
       const result = [];
-      if (task.metaInfo.phase === 'map') {
+      if (nextTask.metaInfo.phase === 'map') {
         execEmit = (key, value) => { // called by map in C++
           const element = {
             'key': key,
@@ -145,9 +118,9 @@ let execEmit: Function = null;
           };
           result.push(element);
         };
-        func(task.inputData); // call above `execEmit` inside
-      } else if (task.metaInfo.phase === 'reduce') {
-        const inputDataObject: { key: any, values: any[] }[] = JSON.parse(task.inputData);
+        func(nextTask.inputData); // call above `execEmit` inside
+      } else if (nextTask.metaInfo.phase === 'reduce') {
+        const inputDataObject: { key: any, values: any[] }[] = JSON.parse(nextTask.inputData);
         execEmit = (key, value) => { // called by reduce in C++
           const element = {
             'key': key,
@@ -159,10 +132,10 @@ let execEmit: Function = null;
           func(element.key, element.values.toString()); // call above `execEmit` inside
         });
       } else {
-        throw new Error(`[Madoop] invalid task id provided: ${task.metaInfo.phase}`);
+        throw new Error(`[Madoop] invalid task id provided: ${nextTask.metaInfo.phase}`);
       }
       const jsonData = {
-        metaInfo: JSON.stringify(task.metaInfo),
+        metaInfo: JSON.stringify(nextTask.metaInfo),
         result: JSON.stringify(result)
       };
       await ajaxPostJson(`${ROOT}/tasks/result`, jsonData);

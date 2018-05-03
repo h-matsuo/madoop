@@ -14,49 +14,24 @@ declare var MADOOP_SERVER_URL: any;
     }
   };
 
-  const ajaxGet = async (url: string): Promise<string> => {
-    return new Promise<string>((resolve, reject) => {
-      const req = new XMLHttpRequest();
-      req.onreadystatechange = (): void => {
-        if (req.readyState !== 4) { return; }
-        if (req.status.toString().charAt(0) !== '2') {
-          throw new Error('[Madoop] cannot communicate with server.');
-        }
-        printLog(`[GET] ${url}`);
-        resolve(req.responseText);
-      };
-      req.open('GET', url, true); // true: ensure async request
-      req.setRequestHeader('Pragma', 'no-cache'); // do not use cache
-      req.setRequestHeader('Cache-Control', 'no-cache'); // do not use cache
-      req.send();
+  const ajaxGet = async (url: string): Promise<Response> => {
+    printLog(`[GET] ${url}`);
+    return fetch(url, {
+      method: 'GET',
+      headers: new Headers({
+        'Pragma': 'no-cache',
+        'Cache-Control': 'no-cache'
+      })
     });
   };
 
-  const ajaxPost = async (url: string, data: any): Promise<string> => {
-    return new Promise<string>((resolve, reject) => {
-      const req = new XMLHttpRequest();
-      req.onreadystatechange = (): void => {
-        if (req.readyState !== 4) { return; }
-        if (req.status.toString().charAt(0) !== '2') {
-          throw new Error('[Madoop] cannot communicate with server.');
-        }
-        printLog(`[POST] ${url}`);
-        resolve(req.responseText);
-      };
-      req.open('POST', url, true);
-      req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=UTF-8');
-      req.send(data);
+  const ajaxPostJson = async (url: string, data: Object): Promise<Response> => {
+    printLog(`[POST] ${url}`);
+    return fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: new Headers({'Content-Type': 'application/json'})
     });
-  };
-
-  const ajaxPostJson = async (url: string, jsonData: Object): Promise<string> => {
-    let data = '';
-    Object.keys(jsonData).forEach(function (key) {
-      const val = this[key]; // `this` === `jsonData`
-      data += `${key}=${val}&`;
-    }, jsonData);
-    const response = await ajaxPost(url, data);
-    return response;
   };
 
   const sleep = async (msec: number = 1000) => {
@@ -81,7 +56,7 @@ declare var MADOOP_SERVER_URL: any;
     if (execFuncs.has(metaInfoString)) {
       return execFuncs.get(metaInfoString);
     }
-    const funcString = await ajaxGet(`${ROOT}/funcString/${metaInfo.phase}`);
+    const funcString = await ajaxGet(`${ROOT}/funcString/${metaInfo.phase}`).then(res => res.text());
     let execFuncString = '';
     if (metaInfo.phase === 'map') {
       execFuncString = 'map(inputData, emitFunc);';
@@ -98,26 +73,25 @@ declare var MADOOP_SERVER_URL: any;
 
   const main = async (): Promise<void> => {
     while (true) {
-      const next = await ajaxGet(`${ROOT}/tasks/next`);
-      const task: {
+      const nextTask: {
         metaInfo: { jobId: string, phase: string },
         inputData: any
-      } = JSON.parse(next);
-      if (task.metaInfo === null) {
+      } = await ajaxGet(`${ROOT}/tasks/next`).then(res => res.json());
+      if (nextTask.metaInfo === null) {
         await sleep(1000);
         continue;
       }
       let execFuncString = '';
-      if (task.metaInfo.phase === 'map') {
-      } else if (task.metaInfo.phase === 'reduce') {
-        const inputDataObject = JSON.parse(task.inputData);
-        task.inputData = convertObjectToMap(inputDataObject);
+      if (nextTask.metaInfo.phase === 'map') {
+      } else if (nextTask.metaInfo.phase === 'reduce') {
+        const inputDataObject = JSON.parse(nextTask.inputData);
+        nextTask.inputData = convertObjectToMap(inputDataObject);
       } else {
-        throw new Error(`[Madoop] invalid task phase provided: ${task.metaInfo.phase}`);
+        throw new Error(`[Madoop] invalid task phase provided: ${nextTask.metaInfo.phase}`);
       }
-      const func = await getExecFunc(task.metaInfo);
+      const func = await getExecFunc(nextTask.metaInfo);
       const result = [];
-      func(task.inputData, (key, value) => {
+      func(nextTask.inputData, (key, value) => {
         const element = {
           'key': key,
           'value': value
@@ -125,7 +99,7 @@ declare var MADOOP_SERVER_URL: any;
         result.push(element);
       });
       const jsonData = {
-        metaInfo: JSON.stringify(task.metaInfo),
+        metaInfo: JSON.stringify(nextTask.metaInfo),
         result: JSON.stringify(result)
       };
       await ajaxPostJson(`${ROOT}/tasks/result`, jsonData);
