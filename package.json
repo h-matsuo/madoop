@@ -12,20 +12,18 @@
     "url": "git@github.com:kusumotolab/madoop.git"
   },
   "scripts": {
-    "compile": "rimraf out && tsc",
-    "postinstall": "npm run compile"
+    "postinstall": "tsc"
   },
   "dependencies": {
+    "@types/node": "^10.0.3",
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "log4js": "^2.5.3",
-    "rimraf": "^2.6.2",
     "typescript": "^2.8.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.3",
     "@types/express": "^4.11.1",
-    "@types/node": "^9.6.7",
     "gulp": "^3.9.1",
     "gulp-notify": "^3.2.0",
     "gulp-plumber": "^1.2.0",
