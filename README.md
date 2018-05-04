@@ -8,7 +8,7 @@ BBVC (Browser-Based Voluntary Computing) based on MapReduce model with WebAssemb
 ## Install
 
 ```sh
-$ npm install madoop@git@github.com:kusumotolab/madoop.git
+$ npm install madoop@git+ssh://git@github.com/kusumotolab/madoop.git
 ```
 
 
@@ -30,7 +30,7 @@ class MyReducer extends madoop.AbstractReducer {
 }
 
 const job = new madoop.Job('sample');
-const madoop = new madoop.Madoop();
+const m = new madoop.Madoop();
 
 job.setInputData(new MyInputData());
 job.setMapper(new MyMapper());
@@ -38,8 +38,8 @@ job.setReducer(new MyReducer());
 job.setCallbackWhenCompleted(result => {
   console.log(result);
 });
-madoop.setJob(job);
-madoop.run();
+m.setJob(job);
+m.run();
 ```
 
 See `sample` directory for more details.
