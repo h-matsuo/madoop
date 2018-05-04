@@ -1,5 +1,4 @@
-import Job from '../../madoop/Job';
-import WebServer from '../../madoop/webapi-extension/WebServer';
+import {Job, WebServer} from '../../';
 import MyInputData from './MyInputData';
 import MyMapper from './MyMapper';
 import MyReducer from './MyReducer';
