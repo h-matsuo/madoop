@@ -3,6 +3,7 @@ import AbstractInputData from './AbstractInputData';
 import AbstractMapper from './AbstractMapper';
 import AbstractReducer from './AbstractReducer';
 import Task from './Task';
+import { Madoop, MadoopError } from '..';
 
 export default
 class Job {
@@ -11,11 +12,13 @@ class Job {
   private jobId: string;
   private mapper: AbstractMapper;
   private reducer: AbstractReducer;
+  private numMapCompleted: number;
   private callbackWhenCompleted: (result?: any) => void;
 
   constructor(jobId: string) {
     this.jobId = jobId;
     this.dataController = new DataController();
+    this.numMapCompleted = 0;
     this.callbackWhenCompleted = () => {}; // default: do nothing
   }
 
@@ -48,30 +51,34 @@ class Job {
   }
 
   getNextTask(): Task | null {
-    let task = new Task();
-    const nextMapperInputData = this.dataController.getNextMapperInputData();
-    if (nextMapperInputData) {
-      task.setMetaInfo({
-        jobId: this.jobId,
-        phase: 'map'
-      });
-      task.setTaskInputData(nextMapperInputData);
-      task.setMethod(() => {
-        task.result = [];
-        this.mapper.map(
-          nextMapperInputData,
-          (key, value) => {
-            const element = {
-              'key': key,
-              'value': value
-            };
-            task.result.push(element);
-          }
-        );
-      });
+    let task: Task = null;
+    if (!this.hasMapCompleted()) {
+      const nextMapperInputData = this.dataController.getNextMapperInputData();
+      if (nextMapperInputData) {
+        task = new Task();
+        task.setMetaInfo({
+          jobId: this.jobId,
+          phase: 'map'
+        });
+        task.setTaskInputData(nextMapperInputData);
+        task.setMethod(() => {
+          task.result = [];
+          this.mapper.map(
+            nextMapperInputData,
+            (key, value) => {
+              const element = {
+                'key': key,
+                'value': value
+              };
+              task.result.push(element);
+            }
+          );
+        });
+      }
     } else {
       const nextReducerInputData = this.dataController.getNextReducerInputData();
       if (nextReducerInputData) {
+        task = new Task();
         task.setMetaInfo({
           jobId: this.jobId,
           phase: 'reduce'
@@ -90,11 +97,16 @@ class Job {
             }
           );
         });
-      } else {
-        task = null;
       }
     }
     return task;
+  }
+
+  hasMapCompleted(): boolean {
+    const numMapTaskToDistribute = this.getInputData().getInputDataList().length;
+    if (this.numMapCompleted < numMapTaskToDistribute) { return false; }
+    if (this.numMapCompleted === numMapTaskToDistribute) { return true; }
+    throw new MadoopError('too many map results.');
   }
 
   completeTask(task: Task): void {
@@ -102,6 +114,7 @@ class Job {
       task.result.forEach(element => {
         this.dataController.addMapperResultPair(element.key, element.value);
       });
+      this.numMapCompleted++;
     } else if (task.getMetaInfo().phase === 'reduce') {
       task.result.forEach(element => {
         this.dataController.addReducerResultPair(element.key, element.value);
