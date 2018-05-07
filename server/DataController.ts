@@ -9,9 +9,9 @@ class DataController {
   private mapperResult: MapperResult;
   private reducerResult: ReducerResult;
 
-  private mapCompleted: boolean[];
+  private mapTaskDistributed: boolean[];
   private reduceInputData: Map<any, any[]>[];
-  private reduceCompleted: boolean[];
+  private reduceTaskDistributed: boolean[];
 
   constructor(inputData: AbstractInputData = null) {
     if (inputData) {
@@ -28,13 +28,13 @@ class DataController {
   setInputData(inputData: AbstractInputData): void {
     this.inputData = inputData;
     const dataLength = inputData.getInputDataList().length;
-    this.mapCompleted = (new Array(dataLength)).fill(false);
+    this.mapTaskDistributed = (new Array(dataLength)).fill(false);
   }
 
   hasNextMapperInputData(): boolean {
     let id = -1;
-    for (let i = 0; i < this.mapCompleted.length; ++i) {
-      if (!this.mapCompleted[i]) {
+    for (let i = 0; i < this.mapTaskDistributed.length; ++i) {
+      if (!this.mapTaskDistributed[i]) {
         id = i;
         break;
       }
@@ -47,9 +47,9 @@ class DataController {
 
   getNextMapperInputData(): any | null {
     let id = -1;
-    for (let i = 0; i < this.mapCompleted.length; ++i) {
-      if (!this.mapCompleted[i]) {
-        this.mapCompleted[i] = true;
+    for (let i = 0; i < this.mapTaskDistributed.length; ++i) {
+      if (!this.mapTaskDistributed[i]) {
+        this.mapTaskDistributed[i] = true;
         id = i;
         break;
       }
@@ -75,7 +75,7 @@ class DataController {
   setUpReducerInputData(): void {
     const dataLength = this.mapperResult.getPairs().size;
     this.reduceInputData = [];
-    this.reduceCompleted = (new Array(dataLength)).fill(false);
+    this.reduceTaskDistributed = (new Array(dataLength)).fill(false);
     this.mapperResult.getPairs().forEach((values, key) => {
       const data = new Map<any, any[]>();
       data.set(key, values);
@@ -88,8 +88,8 @@ class DataController {
       return false;
     }
     let id = -1;
-    for (let i = 0; i < this.reduceCompleted.length; ++i) {
-      if (!this.reduceCompleted[i]) {
+    for (let i = 0; i < this.reduceTaskDistributed.length; ++i) {
+      if (!this.reduceTaskDistributed[i]) {
         id = i;
         break;
       }
@@ -102,9 +102,9 @@ class DataController {
 
   getNextReducerInputData(): Map<any, any[]> | null {
     let id = -1;
-    for (let i = 0; i < this.reduceCompleted.length; ++i) {
-      if (!this.reduceCompleted[i]) {
-        this.reduceCompleted[i] = true;
+    for (let i = 0; i < this.reduceTaskDistributed.length; ++i) {
+      if (!this.reduceTaskDistributed[i]) {
+        this.reduceTaskDistributed[i] = true;
         id = i;
         break;
       }
