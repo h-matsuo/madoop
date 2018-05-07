@@ -1,12 +1,16 @@
 declare var MADOOP_MODE_DEBUG: any;
-declare var MADOOP_SERVER_URL: any;
+declare var MADOOP_SERVER_ENDPOINT_URL: string;
+declare var MADOOP_PING_INTERVAL: number;
 
 ((): void => {
 
-  const ROOT =
-    typeof MADOOP_SERVER_URL === 'undefined' ?
-    'http://localhost:3000/madoop' :
-    `${MADOOP_SERVER_URL}`;
+  const __SERVER_ENDPOINT_URL =
+    typeof MADOOP_SERVER_ENDPOINT_URL === 'undefined' ?
+      'http://localhost:3000/madoop' : MADOOP_SERVER_ENDPOINT_URL;
+
+  const __PING_INTERVAL =
+    typeof MADOOP_PING_INTERVAL === 'undefined' ?
+      1000 : MADOOP_PING_INTERVAL;
 
   const printLog = (msg: string): void => {
     if (typeof MADOOP_MODE_DEBUG !== 'undefined') {
@@ -34,7 +38,7 @@ declare var MADOOP_SERVER_URL: any;
     });
   };
 
-  const sleep = async (msec: number = 1000) => {
+  const sleep = async (msec: number) => {
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {
         resolve();
@@ -56,7 +60,7 @@ declare var MADOOP_SERVER_URL: any;
     if (execFuncs.has(metaInfoString)) {
       return execFuncs.get(metaInfoString);
     }
-    const funcString = await ajaxGet(`${ROOT}/funcString/${metaInfo.phase}`).then(res => res.text());
+    const funcString = await ajaxGet(`${__SERVER_ENDPOINT_URL}/funcString/${metaInfo.phase}`).then(res => res.text());
     let execFuncString = '';
     if (metaInfo.phase === 'map') {
       execFuncString = 'map(inputData, emitFunc);';
@@ -76,9 +80,9 @@ declare var MADOOP_SERVER_URL: any;
       const nextTask: {
         metaInfo: { jobId: string, phase: string },
         inputData: any
-      } = await ajaxGet(`${ROOT}/tasks/next`).then(res => res.json());
+      } = await ajaxGet(`${__SERVER_ENDPOINT_URL}/tasks/next`).then(res => res.json());
       if (nextTask.metaInfo === null) {
-        await sleep(1000);
+        await sleep(__PING_INTERVAL);
         continue;
       }
       let execFuncString = '';
@@ -102,7 +106,7 @@ declare var MADOOP_SERVER_URL: any;
         metaInfo: JSON.stringify(nextTask.metaInfo),
         result: JSON.stringify(result)
       };
-      await ajaxPostJson(`${ROOT}/tasks/result`, jsonData);
+      await ajaxPostJson(`${__SERVER_ENDPOINT_URL}/tasks/result`, jsonData);
     }
   };
   main();
