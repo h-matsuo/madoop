@@ -97,7 +97,7 @@ class WasmWebServer {
         inputData: <any> null
       };
       const nextTask = this.job.getNextTask();
-      if (!task) { res.send(nextTask); return; }
+      if (!nextTask) { res.send(nextTask); return; }
 
       task.metaInfo = nextTask.getMetaInfo();
       task.inputData = nextTask.getTaskInputData();
