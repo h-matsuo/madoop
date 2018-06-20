@@ -109,7 +109,10 @@ let execEmit: Function = () => {
       const nextTask: {
         metaInfo: { jobId: string, phase: string },
         inputData: any
-      } = await ajaxGet(`${__SERVER_ENDPOINT_URL}/tasks/next`).then(res => res.json());
+      } = await ajaxGet(`${__SERVER_ENDPOINT_URL}/tasks/next`)
+        .then(res => res.json())
+        .catch(() => { new Error('[Madoop] cannot fetch.'); });
+      console.log('method passed.')
       if (nextTask.metaInfo === null) {
         await sleep(__PING_INTERVAL);
         continue;
@@ -137,7 +140,8 @@ let execEmit: Function = () => {
         metaInfo: JSON.stringify(nextTask.metaInfo),
         result: JSON.stringify(result)
       };
-      await ajaxPostJson(`${__SERVER_ENDPOINT_URL}/tasks/result`, jsonData);
+      await ajaxPostJson(`${__SERVER_ENDPOINT_URL}/tasks/result`, jsonData)
+        .catch(() => { new Error('[Madoop] failed to post results.'); });
     }
   };
   main();
