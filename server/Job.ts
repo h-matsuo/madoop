@@ -114,6 +114,7 @@ class Job {
       task.result.forEach(element => {
         this.dataController.addMapperResultPair(element.key, element.value);
       });
+      this.dataController.finishAddingMapperResultPairs();
       this.numMapCompleted++;
     } else if (task.getMetaInfo().phase === 'reduce') {
       task.result.forEach(element => {

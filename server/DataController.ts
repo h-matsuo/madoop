@@ -67,8 +67,11 @@ class DataController {
 
   addMapperResultPair(key: any, value: any): void {
     this.mapperResult.addPair(key, value);
+  }
+
+  finishAddingMapperResultPairs(): void {
     if (!this.hasNextMapperInputData()) {
-      this.setUpReducerInputData();
+        this.setUpReducerInputData();
     }
   }
 
