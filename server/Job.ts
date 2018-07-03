@@ -2,6 +2,7 @@ import DataController from './DataController';
 import AbstractInputData from './AbstractInputData';
 import AbstractMapper from './AbstractMapper';
 import AbstractReducer from './AbstractReducer';
+import AbstractShuffler from './AbstractShuffler';
 import Task from './Task';
 import { Madoop, MadoopError } from '..';
 
@@ -12,12 +13,13 @@ class Job {
   private jobId: string;
   private mapper: AbstractMapper;
   private reducer: AbstractReducer;
+  private shuffler: AbstractShuffler;
   private numMapCompleted: number;
   private callbackWhenCompleted: (result?: any) => void;
 
   constructor(jobId: string) {
     this.jobId = jobId;
-    this.dataController = new DataController();
+    this.dataController = new DataController(this);
     this.numMapCompleted = 0;
     this.callbackWhenCompleted = () => {}; // default: do nothing
   }
@@ -34,12 +36,20 @@ class Job {
     return this.reducer;
   }
 
+  getShuffler():AbstractShuffler {
+    return this.shuffler;
+  }
+
   setMapper(mapper: AbstractMapper): void {
     this.mapper = mapper;
   }
 
   setReducer(reducer: AbstractReducer): void {
     this.reducer = reducer;
+  }
+
+  setShuffler(shuffler: AbstractShuffler): void {
+    this.shuffler = shuffler;
   }
 
   getInputData(): AbstractInputData {
