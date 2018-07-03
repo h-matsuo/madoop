@@ -4,6 +4,7 @@ import Task from './server/Task';
 import AbstractInputData from './server/AbstractInputData';
 import AbstractMapper from './server/AbstractMapper';
 import AbstractReducer from './server/AbstractReducer';
+import AbstractShuffler from './server/AbstractShuffler';
 import WasmMapper from './server/WasmMapper';
 import WasmReducer from './server/WasmReducer';
 import MadoopError from './server/MadoopError';
@@ -17,6 +18,7 @@ export {
   AbstractInputData,
   AbstractMapper,
   AbstractReducer,
+  AbstractShuffler,
   WasmMapper,
   WasmReducer,
   MadoopError
