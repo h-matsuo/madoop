@@ -78,7 +78,15 @@ let execEmit: Function = () => {
         const moduleArgs = {
           'wasmBinary': new Uint8Array(wasmData.wasmBinary.data),
           'onRuntimeInitialized': () => {
-            func = module.cwrap('map', null, ['string']);
+            const map = module.cwrap('map', null, ['number']);
+            func = (inputDataString: string) => {
+              // Pass the argument through the pointer which addresses Emscripten's heap
+              const bufferSize = module.lengthBytesUTF8(inputDataString);
+              const buffer = module._malloc(bufferSize + 1);
+              module.stringToUTF8(inputDataString, buffer, bufferSize + 1);
+              map(buffer);
+              module._free(buffer);
+            };
             resolve();
           }
         };
@@ -90,7 +98,15 @@ let execEmit: Function = () => {
         const moduleArgs = {
           'wasmBinary': new Uint8Array(wasmData.wasmBinary.data),
           'onRuntimeInitialized': () => {
-            func = module.cwrap('reduce', null, ['string', 'string']);
+            const reduce = module.cwrap('reduce', null, ['string', 'number']);
+            func = (keyString: string, valuesString: string) => {
+              // Pass the argument through the pointer which addresses Emscripten's heap
+              const bufferSize = module.lengthBytesUTF8(valuesString);
+              const buffer = module._malloc(bufferSize + 1);
+              module.stringToUTF8(valuesString, buffer, bufferSize + 1);
+              reduce(keyString, buffer);
+              module._free(buffer);
+            };
             resolve();
           }
         };
