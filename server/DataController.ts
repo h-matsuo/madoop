@@ -1,10 +1,12 @@
 import AbstractInputData from './AbstractInputData';
 import MapperResult from './MapperResult';
 import ReducerResult from './ReducerResult';
+import Job from './Job';
 
 export default
 class DataController {
 
+  private job: Job;
   private inputData: AbstractInputData;
   private mapperResult: MapperResult;
   private reducerResult: ReducerResult;
@@ -13,10 +15,8 @@ class DataController {
   private reduceInputData: Map<any, any[]>[];
   private reduceTaskDistributed: boolean[];
 
-  constructor(inputData: AbstractInputData = null) {
-    if (inputData) {
-      this.setInputData(inputData);
-    }
+  constructor(job: Job) {
+    this.job = job;
     this.mapperResult = new MapperResult();
     this.reducerResult = new ReducerResult();
   }
@@ -67,20 +67,17 @@ class DataController {
 
   addMapperResultPair(key: any, value: any): void {
     this.mapperResult.addPair(key, value);
+  }
+
+  finishAddingMapperResultPairs(): void {
     if (!this.hasNextMapperInputData()) {
-      this.setUpReducerInputData();
+        this.setUpReducerInputData();
     }
   }
 
   setUpReducerInputData(): void {
-    const dataLength = this.mapperResult.getPairs().size;
-    this.reduceInputData = [];
-    this.reduceTaskDistributed = (new Array(dataLength)).fill(false);
-    this.mapperResult.getPairs().forEach((values, key) => {
-      const data = new Map<any, any[]>();
-      data.set(key, values);
-      this.reduceInputData.push(data);
-    });
+    this.reduceInputData = this.job.getShuffler().setUpReducerInputData(this.mapperResult.getPairs());
+    this.reduceTaskDistributed = (new Array(this.reduceInputData.length)).fill(false);
   }
 
   hasNextReducerInputData(): boolean {

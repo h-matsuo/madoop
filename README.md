@@ -8,7 +8,7 @@ BBVC (Browser-Based Voluntary Computing) based on MapReduce model with WebAssemb
 ## Install
 
 ```sh
-$ npm install madoop@git+ssh://git@github.com/kusumotolab/madoop.git
+$ npm install git+ssh://git@github.com/kusumotolab/madoop.git
 ```
 
 
