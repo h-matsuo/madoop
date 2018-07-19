@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 EMSCRIPTEN_IMAGE_NAME="trzeci/emscripten-slim"
-EMSCRIPTEN_IMAGE_TAG="sdk-tag-1.37.38-64bit"
+EMSCRIPTEN_IMAGE_TAG="sdk-tag-1.38.8-64bit"
 
 SCRIPT_DIR="$(cd $(dirname "${BASH_SOURCE:-$0}"); pwd)"
 
