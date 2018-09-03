@@ -3,6 +3,7 @@
   "description": "Matsuo Hadoop -- BBVC (Browser-Based Voluntary Computing) based on MapReduce model with WebAssembly Technology",
   "version": "0.1.6",
   "author": "Hiroyuki Matsuo",
+  "license": "MIT",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "private": true,
