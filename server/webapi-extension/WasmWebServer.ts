@@ -75,7 +75,8 @@ class WasmWebServer {
       const mapper = <WasmMapper>this.job.getMapper();
       const data = {
         wasmJs: mapper.getWasmJs(),
-        wasmBinary: mapper.getWasmBinary()
+        wasmBinary: mapper.getWasmBinary(),
+        wasmPreprocessJs: mapper.getWasmPreprocessJs()
       };
       res.send(data);
     });
@@ -85,7 +86,8 @@ class WasmWebServer {
       const reducer = <WasmReducer>this.job.getReducer();
       const data = {
         wasmJs: reducer.getWasmJs(),
-        wasmBinary: reducer.getWasmBinary()
+        wasmBinary: reducer.getWasmBinary(),
+        wasmPreprocessJs: reducer.getWasmPreprocessJs()
       };
       res.send(data);
     });

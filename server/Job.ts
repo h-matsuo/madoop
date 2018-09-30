@@ -15,12 +15,16 @@ class Job {
   private reducer: AbstractReducer;
   private shuffler: AbstractShuffler;
   private numMapCompleted: number;
+  private isFirstAccess: boolean;
+  private callbackWhenAccessedFirstly: () => void;
   private callbackWhenCompleted: (result?: any) => void;
 
   constructor(jobId: string) {
     this.jobId = jobId;
     this.dataController = new DataController(this);
     this.numMapCompleted = 0;
+    this.isFirstAccess = true;
+    this.callbackWhenAccessedFirstly = () => {}; // default: do nothing
     this.callbackWhenCompleted = () => {}; // default: do nothing
   }
 
@@ -61,6 +65,10 @@ class Job {
   }
 
   getNextTask(): Task | null {
+    if (this.isFirstAccess) {
+      this.callbackWhenAccessedFirstly();
+      this.isFirstAccess = false;
+    }
     let task: Task = null;
     if (!this.hasMapCompleted()) {
       const nextMapperInputData = this.dataController.getNextMapperInputData();
@@ -138,6 +146,10 @@ class Job {
 
   getResult(): any {
     return this.dataController.getReducerResultPairs();
+  }
+
+  setCallbackWhenAccessedFirstly(callback: () => void): void {
+    this.callbackWhenAccessedFirstly = callback;
   }
 
   setCallbackWhenCompleted(callback: (result?: any) => void): void {

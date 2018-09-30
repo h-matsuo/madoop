@@ -10,6 +10,17 @@ let execEmit: Function = () => {
   throw new Error('[Madoop] function `execEmit` not defined.');
 };
 
+const madoop = {
+  runtime: {
+    wasmMapPreprocess: async data => {
+      return data;
+    },
+    wasmReducePreprocess: async ({key: key, value: value}) => {
+      return {key: key, value: value};
+    }
+  }
+};
+
 ((): void => {
 
   const __SERVER_ENDPOINT_URL =
@@ -68,9 +79,11 @@ let execEmit: Function = () => {
     }
     const wasmData: {
       wasmJs: string,
-      wasmBinary: {type: string, data: Array<number>}
+      wasmBinary: {type: string, data: Array<number>},
+      wasmPreprocessJs: string
     } = await ajaxGet(`${__SERVER_ENDPOINT_URL}/wasmData/${metaInfo.phase}`).then(res => res.json());
     applyScript(wasmData.wasmJs);
+    if (wasmData.wasmPreprocessJs) { (new Function(wasmData.wasmPreprocessJs))(); }
     let func;
     if (metaInfo.phase === 'map') {
       await new Promise<void>((resolve, reject) => {
@@ -81,9 +94,9 @@ let execEmit: Function = () => {
             const map = module.cwrap('map', null, ['number']);
             func = (inputDataString: string) => {
               // Pass the argument through the pointer which addresses Emscripten's heap
-              const bufferSize = module.lengthBytesUTF8(inputDataString);
-              const buffer = module._malloc(bufferSize + 1);
-              module.stringToUTF8(inputDataString, buffer, bufferSize + 1);
+              const bufferSize = module.lengthBytesUTF8(inputDataString) + 1;
+              const buffer = module._malloc(bufferSize);
+              module.stringToUTF8(inputDataString, buffer, bufferSize);
               map(buffer);
               module._free(buffer);
             };
@@ -101,9 +114,9 @@ let execEmit: Function = () => {
             const reduce = module.cwrap('reduce', null, ['string', 'number']);
             func = (keyString: string, valuesString: string) => {
               // Pass the argument through the pointer which addresses Emscripten's heap
-              const bufferSize = module.lengthBytesUTF8(valuesString);
-              const buffer = module._malloc(bufferSize + 1);
-              module.stringToUTF8(valuesString, buffer, bufferSize + 1);
+              const bufferSize = module.lengthBytesUTF8(valuesString) + 1;
+              const buffer = module._malloc(bufferSize);
+              module.stringToUTF8(valuesString, buffer, bufferSize);
               reduce(keyString, buffer);
               module._free(buffer);
             };
@@ -140,12 +153,17 @@ let execEmit: Function = () => {
         result.push(element);
       };
       if (nextTask.metaInfo.phase === 'map') {
-        func(nextTask.inputData); // call above `execEmit` inside
+        const preprocessed = await madoop.runtime.wasmMapPreprocess(nextTask.inputData);
+        func(preprocessed); // call above `execEmit` inside
       } else if (nextTask.metaInfo.phase === 'reduce') {
         const inputDataObject: { key: any, values: any[] }[] = JSON.parse(nextTask.inputData);
-        inputDataObject.forEach(element => {
-          func(element.key, element.values.toString()); // call above `execEmit` inside
-        });
+        for (const element of inputDataObject) {
+          const preprocessed = await madoop.runtime.wasmReducePreprocess({
+            key: element.key,
+            value: element.values.toString()
+          });
+          func(preprocessed.key, preprocessed.value); // call above `execEmit` inside
+        }
       } else {
         throw new Error(`[Madoop] invalid task id provided: ${nextTask.metaInfo.phase}`);
       }
