@@ -5,6 +5,7 @@ class WasmReducer extends AbstractReducer {
 
   private wasmJs: string;
   private wasmBinary: Buffer;
+  private wasmPreprocessJs: string;
 
   reduce(
     inputData: Map<any, any[]>,
@@ -21,12 +22,20 @@ class WasmReducer extends AbstractReducer {
     return this.wasmBinary;
   }
 
+  getWasmPreprocessJs(): string {
+    return this.wasmPreprocessJs;
+  }
+
   setWasmJs(js: string) {
     this.wasmJs = js;
   }
 
   setWasmBinary(binary: Buffer) {
     this.wasmBinary = binary;
+  }
+
+  setWasmPreprocessJs(js: string) {
+    this.wasmPreprocessJs = js;
   }
 
 }

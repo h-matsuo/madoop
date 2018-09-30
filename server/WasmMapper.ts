@@ -5,6 +5,7 @@ class WasmMapper extends AbstractMapper {
 
   private wasmJs: string;
   private wasmBinary: Buffer;
+  private wasmPreprocessJs: string;
 
   map(
     inputData: any,
@@ -21,6 +22,10 @@ class WasmMapper extends AbstractMapper {
     return this.wasmBinary;
   }
 
+  getWasmPreprocessJs(): string {
+    return this.wasmPreprocessJs;
+  }
+
   setWasmJs(js: string) {
     this.wasmJs = js;
   }
@@ -29,5 +34,8 @@ class WasmMapper extends AbstractMapper {
     this.wasmBinary = binary;
   }
 
+  setWasmPreprocessJs(js: string) {
+    this.wasmPreprocessJs = js;
+  }
 
 }
