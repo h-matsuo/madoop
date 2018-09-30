@@ -81,9 +81,9 @@ let execEmit: Function = () => {
             const map = module.cwrap('map', null, ['number']);
             func = (inputDataString: string) => {
               // Pass the argument through the pointer which addresses Emscripten's heap
-              const bufferSize = module.lengthBytesUTF8(inputDataString);
-              const buffer = module._malloc(bufferSize + 1);
-              module.stringToUTF8(inputDataString, buffer, bufferSize + 1);
+              const bufferSize = module.lengthBytesUTF8(inputDataString) + 1;
+              const buffer = module._malloc(bufferSize);
+              module.stringToUTF8(inputDataString, buffer, bufferSize);
               map(buffer);
               module._free(buffer);
             };
@@ -101,9 +101,9 @@ let execEmit: Function = () => {
             const reduce = module.cwrap('reduce', null, ['string', 'number']);
             func = (keyString: string, valuesString: string) => {
               // Pass the argument through the pointer which addresses Emscripten's heap
-              const bufferSize = module.lengthBytesUTF8(valuesString);
-              const buffer = module._malloc(bufferSize + 1);
-              module.stringToUTF8(valuesString, buffer, bufferSize + 1);
+              const bufferSize = module.lengthBytesUTF8(valuesString) + 1;
+              const buffer = module._malloc(bufferSize);
+              module.stringToUTF8(valuesString, buffer, bufferSize);
               reduce(keyString, buffer);
               module._free(buffer);
             };
